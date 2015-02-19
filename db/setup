@@ -1,0 +1,4 @@
+#!/bin/bash
+
+createdb ll_development
+createdb ll_test
