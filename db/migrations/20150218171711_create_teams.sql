@@ -5,6 +5,8 @@ CREATE TABLE teams (
   updated_at		      timestamp   NOT NULL,
   email       		    text        NOT NULL,
   encrypted_password	text 	      NOT NULL,
+  oauth_authorize_url	text 	      NOT NULL,
+  oauth_token_url	    text 	      NOT NULL,
   slug                text 	      NOT NULL
 );
 

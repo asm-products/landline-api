@@ -12,6 +12,7 @@ This is a product being built by the Assembly community. You can help push this 
   $ go get github.com/codegangsta/gin
   $ ./db/setup
   $ ./db/migrate
+  $ forego run go run db/test-data.go
   $ gin
 
 ### How Assembly Works
