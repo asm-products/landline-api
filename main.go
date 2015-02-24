@@ -16,6 +16,7 @@ func main() {
 	// Unauthenticated routes
 	r.GET("/sessions/new", handlers.SessionsNew)
 	r.GET("/sessions/sso", handlers.SessionsLoginSSO)
+	r.POST("/teams", handlers.TeamsCreate)
 
 	// authenticated routes
 	a := r.Group("/")

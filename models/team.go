@@ -3,6 +3,7 @@ package models
 import (
 	"crypto/hmac"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
 	"time"
 
@@ -18,6 +19,16 @@ type Team struct {
 	SSOSecret         string    `db:"sso_secret" 					json:"-"`
 	SSOUrl            string    `db:"sso_url" 						json:"sso_url"`
 	Slug              string    `db:"slug" 								json:"slug"`
+}
+
+func FindOrCreateTeam(fields *Team) (*Team, error) {
+	var team Team
+	err := Db.SelectOne(&team, "select * from Teams where slug=$1", fields.Slug)
+	if err == sql.ErrNoRows {
+		err = Db.Insert(fields)
+		return fields, err
+	}
+	return &team, err
 }
 
 func FindTeamBySlug(slug string) *Team {
