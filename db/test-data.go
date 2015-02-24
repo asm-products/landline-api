@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/asm-products/landline-api/models"
-	"github.com/go-gorp/gorp"
 	_ "github.com/lib/pq"
+	"gopkg.in/gorp.v1"
 )
 
 func main() {
@@ -29,9 +29,9 @@ func main() {
 		UpdatedAt:         time.Now(),
 		Email:             "jake@ooo.com",
 		EncryptedPassword: "s3kr3th4sh",
-		OAuthAuthorizeUrl: "http://oooid.com/oauth/authorize",
-		OAuthTokenUrl:     "http://oooid.com/oauth/authorize",
-		Slug:              "asm-dev",
+		SSOUrl:            "http://localhost:8989/sso",
+		SSOSecret:         "41fe7589256fd058b3f56bc71a56ebad3b1d6b86e027a73a02db0e3a0524f9d4",
+		Slug:              "test-dev",
 	}
 
 	err = dbmap.Insert(team)

@@ -6,6 +6,7 @@ CREATE TABLE users (
   team_id             uuid        NOT NULL,
   avatar_url	        text,
   email         		  text        NOT NULL,
+  external_id         text        NOT NULL,
   profile_url         text,
   real_name           text        NOT NULL,
   username       		  text        NOT NULL,
@@ -14,6 +15,7 @@ CREATE TABLE users (
 );
 
 CREATE UNIQUE INDEX idx_users_username on users (lower(username));
+CREATE UNIQUE INDEX idx_users_external_id on users (lower(external_id));
 
 -- +goose Down
 DROP TABLE users;

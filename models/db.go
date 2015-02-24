@@ -1,13 +1,12 @@
-package main
+package models
 
 import (
 	"database/sql"
 	"log"
 	"os"
 
-	"github.com/asm-products/landline-api/models"
-	"github.com/go-gorp/gorp"
 	_ "github.com/lib/pq"
+	"gopkg.in/gorp.v1"
 )
 
 var (
@@ -24,10 +23,11 @@ func NewDbContext(url string) *gorp.DbMap {
 
 	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.PostgresDialect{}}
 
-	dbmap.AddTableWithName(models.Message{}, "messages").SetKeys(false, "Id")
-	dbmap.AddTableWithName(models.Room{}, "rooms").SetKeys(false, "Id")
-	dbmap.AddTableWithName(models.Team{}, "teams").SetKeys(false, "Id")
-	dbmap.AddTableWithName(models.User{}, "users").SetKeys(false, "Id")
+	dbmap.AddTableWithName(Message{}, "messages").SetKeys(true, "Id")
+	dbmap.AddTableWithName(Nonce{}, "nonces").SetKeys(true, "Id")
+	dbmap.AddTableWithName(Room{}, "rooms").SetKeys(true, "Id")
+	dbmap.AddTableWithName(Team{}, "teams").SetKeys(true, "Id")
+	dbmap.AddTableWithName(User{}, "users").SetKeys(true, "Id")
 
 	if os.Getenv("DEBUG") != "" {
 		dbmap.TraceOn("[gorp]", log.New(os.Stdout, "[DATABASE] ", log.Lmicroseconds))

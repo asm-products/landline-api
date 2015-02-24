@@ -8,12 +8,36 @@ This is a product being built by the Assembly community. You can help push this 
 
 ## Development
 
-  $ go get bitbucket.org/liamstask/goose/cmd/goose
-  $ go get github.com/codegangsta/gin
-  $ ./db/setup
-  $ ./db/migrate
-  $ forego run go run db/test-data.go
-  $ gin
+    $ go get bitbucket.org/liamstask/goose/cmd/goose
+    $ go get github.com/codegangsta/gin
+    $ ./db/setup
+    $ ./db/migrate
+    $ forego run go run db/test-data.go
+    $ gin
+
+### Authentication flow
+
+    # Start up the test id provider
+    $ go run example/identity_provider.go 41fe7589256fd058b3f56bc71a56ebad3b1d6b86e027a73a02db0e3a0524f9d4
+
+    # Grab the sso endpoint with nonce from landline
+    $ curl -i 'localhost:3000/sessions/new?team=test-dev'
+    HTTP/1.1 302 Found
+    Location: http://localhost:8989/sso?payload=...&sig=....
+
+    # Hit the identity provider with payload landline redirect, this needs to return a user payload
+    $ curl -i http://localhost:8989/sso?payload=...&sig=....
+    HTTP/1.1 302 Found
+    Location: http://localhost:3000/sessions/sso?payload=...&sig=...
+
+    # hit landline with the user payload to receive a session token for the api
+    $ curl -i http://localhost:3000/sessions/sso?payload=...&sig=...
+    {"token":"..."}
+
+    # now you can make requests with your jwt token
+    $ curl -H "Authorization: Bearer $TOKEN" localhost:3000/rooms
+    {"rooms":[]}
+
 
 ### How Assembly Works
 
