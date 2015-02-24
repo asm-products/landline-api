@@ -8,7 +8,7 @@ CREATE TABLE users (
   email         		  text        NOT NULL,
   external_id         text        NOT NULL,
   profile_url         text,
-  real_name           text        NOT NULL,
+  real_name           text,
   username       		  text        NOT NULL,
 
   CONSTRAINT fk_users_teams FOREIGN KEY (team_id) REFERENCES teams (id)
