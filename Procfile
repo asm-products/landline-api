@@ -1,1 +1,1 @@
-web: landline-api
+web: gin
