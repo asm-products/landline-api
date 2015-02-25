@@ -6,6 +6,14 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "bitbucket.org/liamstask/goose/cmd/goose",
+			"Rev": "c7df92cbac83b28f2b46271eb1ccffb20c426b07"
+		},
+		{
+			"ImportPath": "bitbucket.org/liamstask/goose/lib/goose",
+			"Rev": "c7df92cbac83b28f2b46271eb1ccffb20c426b07"
+		},
+		{
 			"ImportPath": "github.com/dgrijalva/jwt-go",
 			"Comment": "v2.2.0-2-g47b263f",
 			"Rev": "47b263f020574c14765ecc3ea88f0e9447046632"
@@ -20,8 +28,32 @@
 			"Rev": "bde5c16eb82ff15a1734a3818d9b9547065f65b1"
 		},
 		{
+			"ImportPath": "github.com/kylelemons/go-gypsy/yaml",
+			"Comment": "go.weekly.2011-11-02-17-g0ddb27c",
+			"Rev": "0ddb27ce74ade2ca988ec85587d636e10312dfc6"
+		},
+		{
 			"ImportPath": "github.com/lib/pq",
 			"Rev": "7175accbed18058468c07811f76440d6e8d7cf19"
+		},
+		{
+			"ImportPath": "github.com/tommy351/gin-cors",
+			"Rev": "f7219a698f21b23d73ae9330d3c5842951ce0b6a"
+		},
+		{
+			"ImportPath": "github.com/ziutek/mymysql/godrv",
+			"Comment": "v1.5.3-8-g872ab67",
+			"Rev": "872ab6792fdbbc715def065b0bbd2a7d91715b97"
+		},
+		{
+			"ImportPath": "github.com/ziutek/mymysql/mysql",
+			"Comment": "v1.5.3-8-g872ab67",
+			"Rev": "872ab6792fdbbc715def065b0bbd2a7d91715b97"
+		},
+		{
+			"ImportPath": "github.com/ziutek/mymysql/native",
+			"Comment": "v1.5.3-8-g872ab67",
+			"Rev": "872ab6792fdbbc715def065b0bbd2a7d91715b97"
 		},
 		{
 			"ImportPath": "gopkg.in/gorp.v1",
