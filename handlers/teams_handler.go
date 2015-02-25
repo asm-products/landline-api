@@ -1,8 +1,6 @@
 package handlers
 
 import (
-  "encoding/json"
-
 	"github.com/asm-products/landline-api/models"
 	"github.com/gin-gonic/gin"
 )
@@ -16,16 +14,16 @@ type TeamJSON struct {
 }
 
 func TeamsCreate(c *gin.Context) {
-  var body TeamJSON
-  decoder := json.NewDecoder(c.Request.Body)
-  err := decoder.Decode(&body)
+  var json TeamJSON
+
+  c.Bind(&json)
 
 	t := &models.Team{
-    Email: body.Email,
-    EncryptedPassword: body.EncryptedPassword,
-    SSOSecret: body.SSOSecret,
-    SSOUrl: body.SSOUrl,
-    Slug: body.Slug,
+    Email: json.Email,
+    EncryptedPassword: json.EncryptedPassword,
+    SSOSecret: json.SSOSecret,
+    SSOUrl: json.SSOUrl,
+    Slug: json.Slug,
   }
 
   team, err := models.FindOrCreateTeam(t)
