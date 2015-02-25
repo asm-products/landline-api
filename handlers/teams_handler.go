@@ -35,3 +35,24 @@ func TeamsCreate(c *gin.Context) {
 
   c.JSON(200, gin.H{"token": token})
 }
+
+func TeamsLogin(c *gin.Context) {
+	var json TeamJSON
+
+	slug := c.Params.ByName("slug")
+	team := models.FindTeamBySlug(slug)
+
+	c.Bind(&json)
+
+	if team.EncryptedPassword != json.EncryptedPassword {
+		c.String(401, "Unauthorized")
+		return
+	}
+
+	if team.Email != json.Email {
+		c.String(401, "Unauthorized")
+		return
+	}
+
+	c.JSON(200, team)
+}

@@ -21,12 +21,17 @@ func main() {
 	r.GET("/sessions/new", handlers.SessionsNew)
 	r.GET("/sessions/sso", handlers.SessionsLoginSSO)
 	r.POST("/teams", handlers.TeamsCreate)
-	r.OPTIONS("", func (c *gin.Context) {
+	r.POST("/teams/:slug", handlers.TeamsLogin)
+	r.OPTIONS("/*cors", func (c *gin.Context) {
     c.JSON(200, gin.H{"ok": "ok"})
 	})
 
 	// authenticated routes
 	a := r.Group("/")
+	a.Use(cors.Middleware(cors.Options{
+		AllowMethods: []string{"GET", "OPTIONS"},
+	  AllowOrigins: []string{"*"},
+	}))
 	a.Use(handlers.Auth(os.Getenv("SECRET")))
 	a.GET("rooms", handlers.RoomsIndex)
 	a.GET("users/find", handlers.UsersFindOne)
