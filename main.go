@@ -36,6 +36,11 @@ func main() {
 	a.GET("rooms", handlers.RoomsIndex)
 	a.GET("users/find", handlers.UsersFindOne)
 
+	t := r.Group("/")
+	t.Use(handlers.TeamAuth(os.Getenv("SECRET")))
+	t.GET("/teams/:slug", handlers.TeamsGet)
+	t.PUT("/teams/:slug", handlers.TeamsUpdate)
+
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "3000"

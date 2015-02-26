@@ -40,6 +40,31 @@ func FindTeamBySlug(slug string) *Team {
 	return &team
 }
 
+func FindTeamById(id string) *Team {
+	var team Team
+	err := Db.SelectOne(&team, "select * from Teams where id=$1", id)
+	if err != nil {
+		panic(err)
+	}
+	return &team
+}
+
+func UpdateTeam(slug string, fields *Team) (*Team, error) {
+	var team Team
+	err := Db.SelectOne(&team, "select * from Teams where slug=$1", slug)
+	if err != nil {
+		panic(err)
+	}
+	team.Email = fields.Email
+	team.Slug = fields.Slug
+	team.SSOUrl = fields.SSOUrl
+	team.SSOSecret = fields.SSOSecret
+
+	_, err = Db.Update(&team)
+
+	return &team, err
+}
+
 func ShaString(raw []byte) string {
 	hasher := sha256.New()
 	hasher.Write(raw)

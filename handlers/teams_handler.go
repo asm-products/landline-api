@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/asm-products/landline-api/models"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 type TeamJSON struct {
@@ -11,6 +12,11 @@ type TeamJSON struct {
   SSOSecret string `json:"secret" binding:"required"`
   SSOUrl string `json:"url" binding:"required"`
   Slug string `json:"name" binding:"required"`
+}
+
+type LoginJSON struct {
+	EncryptedPassword string `json:"password" binding:"required"`
+	Slug string `json:"name" binding:"required"`
 }
 
 func TeamsCreate(c *gin.Context) {
@@ -36,8 +42,20 @@ func TeamsCreate(c *gin.Context) {
   c.JSON(200, gin.H{"token": token})
 }
 
+func TeamsGet(c *gin.Context) {
+	slug := c.Params.ByName("slug")
+	team := models.FindTeamBySlug(slug)
+
+	c.JSON(200, gin.H{
+		"email": team.Email,
+		"url": team.SSOUrl,
+		"name": team.Slug,
+		"secret": team.SSOSecret,
+	})
+}
+
 func TeamsLogin(c *gin.Context) {
-	var json TeamJSON
+	var json LoginJSON
 
 	slug := c.Params.ByName("slug")
 	team := models.FindTeamBySlug(slug)
@@ -49,9 +67,26 @@ func TeamsLogin(c *gin.Context) {
 		return
 	}
 
-	if team.Email != json.Email {
-		c.String(401, "Unauthorized")
-		return
+	token := GenerateToken(team.Id)
+	log.Println("yo")
+	c.JSON(200, gin.H{"token": token, "name": team.Slug})
+}
+
+func TeamsUpdate(c *gin.Context) {
+	var json TeamJSON
+	slug := c.Params.ByName("slug")
+	c.Bind(&json)
+
+	t := &models.Team{
+		Email: json.Email,
+		SSOSecret: json.SSOSecret,
+		SSOUrl: json.SSOUrl,
+		Slug: json.Slug,
+	}
+
+	team, err := models.UpdateTeam(slug, t)
+	if err != nil {
+		panic(err)
 	}
 
 	c.JSON(200, team)
