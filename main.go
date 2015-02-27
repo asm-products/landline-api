@@ -11,40 +11,58 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	r := gin.Default()
-	r.Use(cors.Middleware(cors.Options{
+	router := gin.Default()
+	router.Use(cors.Middleware(cors.Options{
 		AllowMethods: []string{"GET", "OPTIONS"},
 	  AllowOrigins: []string{"*"},
 	}))
 
 	// Unauthenticated routes
-	r.GET("/sessions/new", handlers.SessionsNew)
-	r.GET("/sessions/sso", handlers.SessionsLoginSSO)
-	r.POST("/teams", handlers.TeamsCreate)
-	r.POST("/teams/:slug", handlers.TeamsLogin)
-	r.OPTIONS("/*cors", func (c *gin.Context) {
+	router.GET("/sessions/new", handlers.SessionsNew)
+	router.GET("/sessions/sso", handlers.SessionsLoginSSO)
+	router.POST("/teams", handlers.TeamsCreate)
+	router.POST("/teams/:slug", handlers.TeamsLogin)
+	router.OPTIONS("/*cors", func (c *gin.Context) {
     c.JSON(200, gin.H{"ok": "ok"})
 	})
 
 	// authenticated routes
-	a := r.Group("/")
+	a := router.Group("/")
 	a.Use(cors.Middleware(cors.Options{
 		AllowMethods: []string{"GET", "OPTIONS"},
 	  AllowOrigins: []string{"*"},
 	}))
 	a.Use(handlers.Auth(os.Getenv("SECRET")))
-	a.GET("rooms", handlers.RoomsIndex)
 	a.GET("users/find", handlers.UsersFindOne)
 
-	t := r.Group("/")
+	// session-keeping for landline.io
+	t := router.Group("/teams/:slug")
+	t.Use(cors.Middleware(cors.Options{
+		AllowMethods: []string{"GET", "OPTIONS"},
+	  AllowOrigins: []string{"*"},
+	}))
 	t.Use(handlers.TeamAuth(os.Getenv("SECRET")))
-	t.GET("/teams/:slug", handlers.TeamsGet)
-	t.PUT("/teams/:slug", handlers.TeamsUpdate)
+	t.GET("/", handlers.TeamsShow)
+	t.PUT("/", handlers.TeamsUpdate)
+
+	// we don't need the team because we
+	// know it from the user
+	r := a.Group("/rooms")
+	r.Use(cors.Middleware(cors.Options{
+		AllowMethods: []string{"GET", "OPTIONS"},
+	  AllowOrigins: []string{"*"},
+	}))
+	r.GET("/", handlers.RoomsIndex)
+	r.POST("/", handlers.RoomsCreate)
+	// return most recent messages and users
+	r.GET("/:room", handlers.RoomsShow)
+	r.GET("/:room/messages", handlers.MessagesIndex)
+	r.POST("/:room/messages", handlers.MessagesCreate)
 
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "3000"
 	}
 
-	r.Run(":" + port)
+	router.Run(":" + port)
 }

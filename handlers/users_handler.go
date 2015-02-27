@@ -26,3 +26,12 @@ func UsersFindOne(c *gin.Context) {
 
   c.JSON(200, gin.H{"user": user})
 }
+
+func GetUserFromContext(c *gin.Context) (*models.User, error) {
+	result, err := c.Get("user")
+	if err != nil {
+		return nil, err
+	}
+	user := result.(*models.User)
+	return user, nil
+}

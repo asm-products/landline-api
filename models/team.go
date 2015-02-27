@@ -26,6 +26,11 @@ func FindOrCreateTeam(fields *Team) (*Team, error) {
 	err := Db.SelectOne(&team, "select * from Teams where slug=$1", fields.Slug)
 	if err == sql.ErrNoRows {
 		err = Db.Insert(fields)
+		_ = Db.Insert(Room{
+			TeamId: team.Id,
+			Slug: "general",
+			Topic: "general",
+		})
 		return fields, err
 	}
 	return &team, err

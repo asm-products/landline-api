@@ -7,16 +7,16 @@ import (
 )
 
 type TeamJSON struct {
-  Email string `json:"email" binding:"required"`
+  Email 						string `json:"email" binding:"required"`
   EncryptedPassword string `json:"password" binding:"required"`
-  SSOSecret string `json:"secret" binding:"required"`
-  SSOUrl string `json:"url" binding:"required"`
-  Slug string `json:"name" binding:"required"`
+  SSOSecret 				string `json:"secret" binding:"required"`
+  SSOUrl 						string `json:"url" binding:"required"`
+  Slug 							string `json:"name" binding:"required"`
 }
 
 type LoginJSON struct {
 	EncryptedPassword string `json:"password" binding:"required"`
-	Slug string `json:"name" binding:"required"`
+	Slug 							string `json:"name" binding:"required"`
 }
 
 func TeamsCreate(c *gin.Context) {
@@ -42,7 +42,7 @@ func TeamsCreate(c *gin.Context) {
   c.JSON(200, gin.H{"token": token})
 }
 
-func TeamsGet(c *gin.Context) {
+func TeamsShow(c *gin.Context) {
 	slug := c.Params.ByName("slug")
 	team := models.FindTeamBySlug(slug)
 
