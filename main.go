@@ -13,7 +13,8 @@ func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	router := gin.Default()
 	router.Use(cors.Middleware(cors.Options{
-		AllowMethods: []string{"GET", "OPTIONS"},
+		AllowCredentials: true,
+		AllowMethods: []string{"GET", "OPTIONS", "POST"},
 	  AllowOrigins: []string{"*"},
 	}))
 
@@ -28,19 +29,11 @@ func main() {
 
 	// authenticated routes
 	a := router.Group("/")
-	a.Use(cors.Middleware(cors.Options{
-		AllowMethods: []string{"GET", "OPTIONS"},
-	  AllowOrigins: []string{"*"},
-	}))
 	a.Use(handlers.Auth(os.Getenv("SECRET")))
 	a.GET("users/find", handlers.UsersFindOne)
 
 	// session-keeping for landline.io
 	t := router.Group("/teams/:slug")
-	t.Use(cors.Middleware(cors.Options{
-		AllowMethods: []string{"GET", "OPTIONS"},
-	  AllowOrigins: []string{"*"},
-	}))
 	t.Use(handlers.TeamAuth(os.Getenv("SECRET")))
 	t.GET("/", handlers.TeamsShow)
 	t.PUT("/", handlers.TeamsUpdate)
@@ -48,10 +41,6 @@ func main() {
 	// we don't need the team because we
 	// know it from the user
 	r := a.Group("/rooms")
-	r.Use(cors.Middleware(cors.Options{
-		AllowMethods: []string{"GET", "OPTIONS"},
-	  AllowOrigins: []string{"*"},
-	}))
 	r.GET("/", handlers.RoomsIndex)
 	r.POST("/", handlers.RoomsCreate)
 	// return most recent messages and users
