@@ -15,8 +15,8 @@ type MessageWithUser struct {
 	Id        string    `db:"id" 				 json:"id"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	Body      string    `db:"body"	 		 json:"body"`
-	Username	string		`db:"username"	 json:"username"`
-	AvatarUrl string		`db:"avatar_url" json:"avatar_url"`
+	Username  string    `db:"username"	 json:"username"`
+	AvatarUrl string    `db:"avatar_url" json:"avatar_url"`
 }
 
 func FindMessages(roomId string) ([]MessageWithUser, error) {

@@ -3,20 +3,19 @@ package handlers
 import (
 	"github.com/asm-products/landline-api/models"
 	"github.com/gin-gonic/gin"
-	"log"
 )
 
 type TeamJSON struct {
-  Email 						string `json:"email" binding:"required"`
+  Email string `json:"email" binding:"required"`
   EncryptedPassword string `json:"password" binding:"required"`
-  SSOSecret 				string `json:"secret" binding:"required"`
-  SSOUrl 						string `json:"url" binding:"required"`
-  Slug 							string `json:"name" binding:"required"`
+  SSOSecret string `json:"secret" binding:"required"`
+  SSOUrl string `json:"url" binding:"required"`
+  Slug string `json:"name" binding:"required"`
 }
 
 type LoginJSON struct {
 	EncryptedPassword string `json:"password" binding:"required"`
-	Slug 							string `json:"name" binding:"required"`
+	Slug string `json:"name" binding:"required"`
 }
 
 func TeamsCreate(c *gin.Context) {
@@ -68,7 +67,7 @@ func TeamsLogin(c *gin.Context) {
 	}
 
 	token := GenerateToken(team.Id)
-	log.Println("yo")
+
 	c.JSON(200, gin.H{"token": token, "name": team.Slug})
 }
 

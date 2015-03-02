@@ -27,6 +27,20 @@ func UsersFindOne(c *gin.Context) {
   c.JSON(200, gin.H{"user": user})
 }
 
+func UsersIndex(c *gin.Context) {
+  user, err := GetUserFromContext(c)
+  if err != nil {
+    c.Fail(500, err)
+  }
+
+  users, err := models.FindUsers(user.TeamId)
+  if err != nil {
+    c.Fail(500, err)
+  }
+
+  c.JSON(200, gin.H{"users": users})
+}
+
 func GetUserFromContext(c *gin.Context) (*models.User, error) {
 	result, err := c.Get("user")
 	if err != nil {

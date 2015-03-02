@@ -28,8 +28,8 @@ func FindOrCreateTeam(fields *Team) (*Team, error) {
 		err = Db.Insert(fields)
 		_ = Db.Insert(Room{
 			TeamId: team.Id,
-			Slug: "general",
-			Topic: "general",
+			Slug:   "general",
+			Topic:  "general",
 		})
 		return fields, err
 	}

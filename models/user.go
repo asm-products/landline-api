@@ -8,17 +8,18 @@ import (
 )
 
 type User struct {
-	Id        string    `db:"id" 					json:"id"`
-	CreatedAt time.Time `db:"created_at" 	json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" 	json:"updated_at"`
-	TeamId    string    `db:"team_id" 		json:"team_id"`
+	Id           string    `db:"id" json:"id"`
+	CreatedAt    time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt    time.Time `db:"updated_at" json:"updated_at"`
+	LastOnlineAt time.Time `db:"last_online_at" json:"last_online_at"`
+	TeamId       string    `db:"team_id" json:"team_id"`
 
-	AvatarUrl  string `db:"avatar_url" 		json:"avatar_url"`
-	Email      string `db:"email" 				json:"email"`
-	ExternalId string `db:"external_id" 	json:"external_id"`
-	ProfileUrl string `db:"profile_url" 	json:"profile_url"`
-	RealName   string `db:"real_name" 		json:"real_name"`
-	Username   string `db:"username" 			json:"username"`
+	AvatarUrl  string `db:"avatar_url" json:"avatar_url"`
+	Email      string `db:"email" json:"email"`
+	ExternalId string `db:"external_id" json:"external_id"`
+	ProfileUrl string `db:"profile_url" json:"profile_url"`
+	RealName   string `db:"real_name" json:"real_name"`
+	Username   string `db:"username" json:"username"`
 }
 
 func FindOrCreateUserByExternalId(fields *User) (*User, error) {
@@ -28,6 +29,9 @@ func FindOrCreateUserByExternalId(fields *User) (*User, error) {
 		err = Db.Insert(fields)
 		return fields, err
 	}
+	user.LastOnlineAt = time.Now()
+	_, err = Db.Update(&user)
+
 	return &user, err
 }
 
@@ -37,13 +41,26 @@ func FindUser(id string) (*User, error) {
 	return &user, err
 }
 
+func FindUsers(teamId string) ([]User, error) {
+	var users []User
+	_, err := Db.Select(
+		&users,
+		`SELECT * FROM users WHERE team_id = $1`,
+		teamId,
+	)
+
+	return users, err
+}
+
 func (o *User) PreInsert(s gorp.SqlExecutor) error {
 	o.CreatedAt = time.Now()
 	o.UpdatedAt = o.CreatedAt
+	o.LastOnlineAt = o.CreatedAt
 	return nil
 }
 
 func (o *User) PreUpdate(s gorp.SqlExecutor) error {
 	o.UpdatedAt = time.Now()
+	o.LastOnlineAt = o.UpdatedAt
 	return nil
 }
