@@ -18,14 +18,15 @@ func main() {
 		AllowOrigins:     []string{"*"},
 	}))
 
+	router.OPTIONS("/*cors", func(c *gin.Context) {
+		c.JSON(200, gin.H{"ok": "ok"})
+	})
+
 	// Unauthenticated routes
 	router.GET("/sessions/new", handlers.SessionsNew)
 	router.GET("/sessions/sso", handlers.SessionsLoginSSO)
 	router.POST("/teams", handlers.TeamsCreate)
 	router.POST("/teams/:slug", handlers.TeamsLogin)
-	router.OPTIONS("/*cors", func(c *gin.Context) {
-		c.JSON(200, gin.H{"ok": "ok"})
-	})
 
 	// session-keeping for landline.io
 	t := router.Group("/teams/:slug")
@@ -35,23 +36,14 @@ func main() {
 
 	// authenticated routes
 	a := router.Group("/")
-	a.Use(cors.Middleware(cors.Options{
-		AllowCredentials: true,
-		AllowMethods:     []string{"GET", "OPTIONS", "POST"},
-		AllowOrigins:     []string{"*"},
-	}))
 	a.Use(handlers.Auth(os.Getenv("SECRET")))
 	a.GET("/users", handlers.UsersIndex)
 	a.GET("/users/find", handlers.UsersFindOne)
-
-	// we don't need the team because we
-	// know it from the user
-	r := a.Group("/rooms")
-	r.GET("/", handlers.RoomsIndex)
-	r.POST("/", handlers.RoomsCreate)
-	r.GET("/:room", handlers.RoomsShow)
-	r.GET("/:room/messages", handlers.MessagesIndex)
-	r.POST("/:room/messages", handlers.MessagesCreate)
+	a.GET("/rooms", handlers.RoomsIndex)
+	a.POST("/rooms", handlers.RoomsCreate)
+	a.GET("/rooms/:room", handlers.RoomsShow)
+	a.GET("/rooms/:room/messages", handlers.MessagesIndex)
+	a.POST("/rooms/:room/messages", handlers.MessagesCreate)
 
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
