@@ -18,8 +18,6 @@ func SetupSocketIOServer(){
     }
 }
 
-var userConnections map[string]*models.User= make(map[string]*models.User)
-
 func SocketHandler ( c  * gin.Context ) {
     Socketio_Server.On("connection", func(so socketio.Socket) {
 		// Since this function is called for every connection,
@@ -27,6 +25,9 @@ func SocketHandler ( c  * gin.Context ) {
 		// to this connection.
 		var user *models.User
 
+		// The socket.io client doesn't support sending headers, so we can't use
+		// the standard auth mechanism. To solve this, before doing anything else,
+		// the client should emit an "auth" event, with their JWT as the message.
         so.On("auth", func(token string) string {
 			fmt.Println("auth: ", token)
 			res, err := getUserFromJwt(token, os.Getenv("SECRET"))
@@ -37,6 +38,8 @@ func SocketHandler ( c  * gin.Context ) {
 			return "success"
         })
 
+		// To receive notifications for a room, the client emits the 'join' event,
+		// with the room slug as the message.
 		so.On("join", func(roomSlug string) string {
 			if (user == nil){
 				return "error: not authenticated"
@@ -52,6 +55,7 @@ func SocketHandler ( c  * gin.Context ) {
 			return "success"
 		})
 
+		// Works like the 'join' event.
 		so.On("leave", func(roomSlug string) string {
 			if (user == nil){
 				return "error: not authenticated"
@@ -66,7 +70,7 @@ func SocketHandler ( c  * gin.Context ) {
 			}
 			return "success"
 		})
-
+		
         so.On("disconnection", func() {
             fmt.Println("on disconnect")
         })
