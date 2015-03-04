@@ -58,5 +58,12 @@ func main() {
 		port = "3000"
 	}
 
+    // socket.io
+    router.GET ( "/socket.io", handlers.SocketHandler )
+    router.POST ( "/socket.io", handlers.SocketHandler )
+    router.Handle ( "WS", "/socket.io", [] gin.HandlerFunc { handlers.SocketHandler } )
+    router.Handle ( "WSS", "/socket.io", [] gin.HandlerFunc { handlers.SocketHandler } )
+
+    handlers.SetupSocketIOServer()
 	router.Run(":" + port)
 }

@@ -24,3 +24,19 @@ func Auth(secret string) gin.HandlerFunc {
 		c.Set("user", user)
 	}
 }
+
+func getUserFromJwt(webtoken, secret string) (*models.User, error) {
+	token, err := jwt.Parse(webtoken, func(token *jwt.Token)(interface{}, error){
+		return secret, nil
+	})
+
+	if (err != nil) {
+		return nil, err
+	}
+
+	user, err := models.FindUser(token.Claims["id"].(string))
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
