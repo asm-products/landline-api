@@ -10,6 +10,12 @@ import (
 
 var Socketio_Server *socketio.Server
 
+type sioMessage struct{
+	Body string
+	Room string
+}
+
+
 func SetupSocketIOServer(){
 	var err error
 	Socketio_Server, err = socketio.NewServer(nil)
@@ -66,6 +72,21 @@ func SocketHandler ( c  * gin.Context ) {
   			}
 			err = so.Leave(room.Id)
 			if (err != nil) {
+				return "error: " + err.Error()
+			}
+			return "success"
+		})
+
+		so.On("message", func(m *sioMessage) string{
+			if(user == nil){
+				return "error: not authenticated"
+			}
+			room, err := models.FindRoom(m.Room, user.TeamId)
+  			if (err != nil) {
+    			return "error: " + err.Error()
+  			}
+			_, err = SendMessage(user, room, m.Body)
+			if (err != nil){
 				return "error: " + err.Error()
 			}
 			return "success"
