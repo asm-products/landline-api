@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>landline-api test page</title>
+    <!-- I'm assuming here that Promises and XHR2 are avilable. Most notable, IE doesn't yet support promises, although they're currently in the technical preview. -->
+    <script src="socket.io.js"></script>
+    <script>
+        var boundLog = console.log.bind(console); // Just a helper to make it easier to pass console.log as a callback.
+        var Session = function(token){
+            this.token = token;
+            this.authorizeXHR = function(xhr){
+                xhr.setRequestHeader("Authorization", "Bearer "+this.token)
+            }
+        }
+
+        Session.create = function(){
+            return new Promise(function(resolve, reject) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "http://localhost:3000/sessions/new?team=test-dev");
+                xhr.addEventListener("load", function(){
+                    var resp = JSON.parse(xhr.responseText);
+                    resolve(new Session(resp.token));
+                });
+                xhr.addEventListener("error", reject);
+                xhr.send();
+            });
+        }
+    </script>
+</head>
+<body>
+
+</body>
+</html>

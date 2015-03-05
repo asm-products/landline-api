@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tommy351/gin-cors"
 )
 
 func main() {
@@ -19,6 +20,11 @@ func main() {
 
 	fmt.Println("starting with secret", secret)
 	r := gin.Default()
+	r.Use(cors.Middleware(cors.Options{
+		AllowCredentials: true,
+		AllowMethods:     []string{"GET", "OPTIONS", "POST"},
+		AllowOrigins:     []string{"*"},
+	}))
 	r.GET("/sso", func(c *gin.Context) {
 		nonce, err := ExtractNonce(secret, c.Request)
 		if err != nil {
@@ -37,10 +43,12 @@ func main() {
 
 		raw := v.Encode()
 		payload := base64.StdEncoding.EncodeToString([]byte(raw))
-		url := "localhost:3000/sessions/sso?payload=" + url.QueryEscape(payload) + "&sig=" + Sign([]byte(secret), []byte(payload))
+		url := "http://localhost:3000/sessions/sso?payload=" + url.QueryEscape(payload) + "&sig=" + Sign([]byte(secret), []byte(payload))
 
 		c.Redirect(302, url)
 	})
+
+	r.Static("/debug", "./example/static")
 
 	r.Run(":8989")
 }

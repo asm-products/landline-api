@@ -70,7 +70,7 @@ func SocketHandler ( c  * gin.Context ) {
 			}
 			return "success"
 		})
-		
+
         so.On("disconnection", func() {
             fmt.Println("on disconnect")
         })
@@ -81,5 +81,14 @@ func SocketHandler ( c  * gin.Context ) {
     })
 
     Socketio_Server.ServeHTTP ( c.Writer, c.Request )
+}
+
+// Browsers complain when the allowed origin is *, and there are cookies being set, which socket.io requires.
+func SocketIOCors(c *gin.Context) {
+	origin := c.Request.Header.Get("Origin")
+	if (origin != ""){
+		c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+	}
+	c.Next()
 }
 
