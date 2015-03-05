@@ -39,19 +39,24 @@ func MessagesCreate(c *gin.Context) {
     c.Fail(500, err)
   }
 
-	var json MessageJSON
+  var json MessageJSON
   c.Bind(&json)
 
-  m := &models.Message{
-    RoomId: room.Id,
-    UserId: user.Id,
-    Body: json.Body,
-  }
-
-  err = models.CreateMessage(m)
-  if err != nil {
-    c.Fail(500, err)
+  m, err := SendMessage(user, room, json.Body);
+  if (err != nil){
+	  c.Fail(500, err)
   }
 
   c.JSON(200, gin.H{"message": m})
+}
+
+func SendMessage(user *models.User, room *models.Room, body string) (*models.Message, error) {
+  m := &models.Message{
+    RoomId: room.Id,
+    UserId: user.Id,
+    Body: body,
+  }
+  Socketio_Server.BroadcastTo(room.Id, "message", m)
+  err := models.CreateMessage(m)
+  return m, err
 }

@@ -13,9 +13,10 @@
                 xhr.setRequestHeader("Authorization", "Bearer "+this.token)
             }
 
-            this.makeCall = function(method, path, data){
-                xhr = new XMLHttpRequest();
-                xhr.open(method, path);
+            this.makeCall = function(method, path, data, host){
+                host = host || "http://localhost:3000";
+                var xhr = new XMLHttpRequest();
+                xhr.open(method, host + path);
                 this.authorizeXHR(xhr);
                 if(data){
                     data = JSON.stringify(data);
@@ -23,7 +24,9 @@
                 }
                 xhr.send(data);
                 return new Promise(function(resolve, reject){
-                    xhr.addEventListener("load", resolve);
+                    xhr.addEventListener("load", function(){
+                        resolve(JSON.parse(xhr.responseText));
+                    });
                     xhr.addEventListener("error", reject);
                 });
             }
