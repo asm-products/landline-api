@@ -80,11 +80,7 @@ func SocketHandler(c *gin.Context) {
 			if user == nil {
 				return "error: not authenticated"
 			}
-			room, err := models.FindRoom(m.Room, user.TeamId)
-			if err != nil {
-				return "error: " + err.Error()
-			}
-			_, err = SendMessage(user, room, m.Body)
+			_, err := SendMessage(user, m.Room, m.Body)
 			if err != nil {
 				return "error: " + err.Error()
 			}
