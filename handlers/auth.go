@@ -27,7 +27,7 @@ func Auth(secret string) gin.HandlerFunc {
 
 func getUserFromJwt(webtoken, secret string) (*models.User, error) {
 	token, err := jwt.Parse(webtoken, func(token *jwt.Token)(interface{}, error){
-		return secret, nil
+		return []byte(secret), nil
 	})
 
 	if (err != nil) {
