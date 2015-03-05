@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>landline-api test page</title>
+    <!-- I'm assuming here that Promises and XHR2 are avilable. Most notable, IE doesn't yet support promises, although they're currently in the technical preview. -->
+    <script src="socket.io.js"></script>
+    <script src="apitest.js"></script>
+</head>
+<body>
+<p>Open this page in 2 tabs/windows/browsers, and open the javascript console on each page.</p>
+<p>You can use the following functions:</p>
+<ul>
+    <li>createRoom(slug, topic)</li>
+    <li>joinRoom(slug)</li>
+    <li>leaveRoom(slug)</li>
+    <li>sendMessage(message, slug)</li>
+</ul>
+</body>
+</html>

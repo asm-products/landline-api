@@ -17,7 +17,7 @@ func main() {
 		AllowMethods:     []string{"GET", "OPTIONS", "POST"},
 		AllowOrigins:     []string{"*"},
 	}
-		router.Use(cors.Middleware(co))
+	router.Use(cors.Middleware(co))
 
 	// Unauthenticated routes
 	router.GET("/sessions/new", handlers.SessionsNew)
@@ -59,12 +59,12 @@ func main() {
 		port = "3000"
 	}
 
-    // socket.io
-    router.GET ( "/socket.io/", handlers.SocketIOCors,  handlers.SocketHandler )
-    router.POST ( "/socket.io/", handlers.SocketIOCors, handlers.SocketHandler )
-    router.Handle ( "WS", "/socket.io/", [] gin.HandlerFunc {handlers.SocketIOCors, handlers.SocketHandler } )
-    router.Handle ( "WSS", "/socket.io/", [] gin.HandlerFunc {handlers.SocketIOCors, handlers.SocketHandler } )
+	// socket.io
+	router.GET("/socket.io/", handlers.SocketIOCors, handlers.SocketHandler)
+	router.POST("/socket.io/", handlers.SocketIOCors, handlers.SocketHandler)
+	router.Handle("WS", "/socket.io/", []gin.HandlerFunc{handlers.SocketIOCors, handlers.SocketHandler})
+	router.Handle("WSS", "/socket.io/", []gin.HandlerFunc{handlers.SocketIOCors, handlers.SocketHandler})
 
-    handlers.SetupSocketIOServer()
+	handlers.SetupSocketIOServer()
 	router.Run(":" + port)
 }
