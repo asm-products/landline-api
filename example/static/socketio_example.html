@@ -6,6 +6,58 @@
     <!-- I'm assuming here that Promises and XHR2 are avilable. Most notable, IE doesn't yet support promises, although they're currently in the technical preview. -->
     <script src="socket.io.js"></script>
     <script src="apitest.js"></script>
+    <script>
+        sessionPromise = Session.create();
+        socketPromise = new Promise(function(resolve, reject){
+            var socket = io("http://localhost:3000");
+            socket.on("connect", function(){
+                console.log("Connected to socket.io");
+                resolve(socket);
+            })
+            socket.on("message", function(message){
+                console.log("received message:");
+                console.log(message);
+            })
+        });
+
+        Promise.all([sessionPromise, socketPromise]).then(function(result){
+            session =result[0], socket=result[1];
+            console.log("Got session token.");
+            socket.emit("auth", session.token, function(response){
+                console.log("authenticated to socket.io server, response: "+response);
+            });
+
+            doEmit = function(){
+                // the 'arguments' array is immmutable, and has a weird behavior when used in .concat.
+                var emitargs = [];
+                for (var i=0; i<arguments.length; i++){
+                    emitargs.push(arguments[i]);
+                }
+                console.log(emitargs);
+                return new Promise(function(resolve, reject){
+                    socket.emit.apply(socket, emitargs.concat([function(response){
+                        console.log("emit event: "+emitargs[0]+", got response:"+response);
+                        resolve(response)
+                    }]));
+                });
+            };
+
+            createRoom = function(slug, topic){
+                return session.makeCall("POST", "/rooms/", {Slug: slug, Topic: topic})
+            };
+            joinRoom = function(slug){
+                return doEmit("join", slug);
+            };
+
+            leaveRoom = function(slug){
+                return doEmit("leave", slug);
+            };
+
+            sendMessage = function(slug, body){
+                return doEmit("message", {Room: slug, Body: body});
+            };
+        });
+    </script>
 </head>
 <body>
 <p>Open this page in 2 tabs/windows/browsers, and open the javascript console on each page.</p>
@@ -16,5 +68,7 @@
     <li>leaveRoom(slug)</li>
     <li>sendMessage(message, slug)</li>
 </ul>
+<p>You can also call methods directly on the 'session' and 'socket' objects.</p>
+<p>Every instance of the page has its own socket.io connection, so if you join a room on 2 tabs, and send a message in one of them, you should see it arrive in the other.</p>
 </body>
 </html>
