@@ -19,6 +19,16 @@ type MessageWithUser struct {
 	AvatarUrl string    `db:"avatar_url" json:"avatar_url"`
 }
 
+func NewMessageWithUser(message *Message, user *User) *MessageWithUser {
+	return &MessageWithUser{
+		Id: message.Id,
+		CreatedAt: message.CreatedAt,
+		Body: message.Body,
+		Username: user.Username,
+		AvatarUrl: user.AvatarUrl,
+	}
+}
+
 func FindMessages(roomId string) ([]MessageWithUser, error) {
 	var messages []MessageWithUser
 	_, err := Db.Select(

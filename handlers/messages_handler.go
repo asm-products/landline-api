@@ -50,13 +50,14 @@ func MessagesCreate(c *gin.Context) {
   c.JSON(200, gin.H{"message": m})
 }
 
-func SendMessage(user *models.User, room *models.Room, body string) (*models.Message, error) {
+func SendMessage(user *models.User, room *models.Room, body string) (*models.MessageWithUser, error) {
   m := &models.Message{
     RoomId: room.Id,
     UserId: user.Id,
     Body: body,
   }
-  Socketio_Server.BroadcastTo(room.Id, "message", m)
   err := models.CreateMessage(m)
-  return m, err
+  mu := models.NewMessageWithUser(m, user)
+  Socketio_Server.BroadcastTo(room.Id, "message", mu)
+  return mu, err
 }
