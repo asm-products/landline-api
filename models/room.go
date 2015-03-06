@@ -6,12 +6,12 @@ import (
 )
 
 type Room struct {
-	Id        string    `db:"id" 				 json:"id"`
+	Id        string    `db:"id" json:"id"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
-	TeamId    string    `db:"team_id" 	 json:"team_id"`
-	Slug      string    `db:"slug" 			 json:"slug"`
-	Topic     string    `db:"topic" 		 json:"topic"`
+	TeamId    string    `db:"team_id" json:"team_id"`
+	Slug      string    `db:"slug" json:"slug"`
+	Topic     string    `db:"topic" json:"topic"`
 }
 
 func FindOrCreateRoom(fields *Room) (*Room, error) {
@@ -28,4 +28,20 @@ func FindRoom(slug string, teamId string) (*Room, error) {
 	var room Room
 	err := Db.SelectOne(&room, "select * from Rooms where slug=$1 and team_id=$2", slug, teamId)
 	return &room, err
+}
+
+func Subscribers(roomId string) (*[]string, error) {
+	var subscribers []string
+
+	_, err := Db.Select(
+		&subscribers,
+		`select user_id from room_memberships where room_id = $1`,
+		roomId,
+	)
+
+	if err == sql.ErrNoRows {
+		return &subscribers, nil
+	}
+
+	return &subscribers, err
 }
