@@ -34,24 +34,30 @@ func MessagesCreate(c *gin.Context) {
     c.Fail(500, err)
   }
 
-  room, err := models.FindRoom(c.Params.ByName("room"), user.TeamId)
-  if err != nil {
-    c.Fail(500, err)
+  var json MessageJSON
+  c.Bind(&json)
+
+  m, err := SendMessage(user, c.Params.ByName("room"), json.Body);
+  if (err != nil){
+	  c.Fail(500, err)
   }
 
-	var json MessageJSON
-  c.Bind(&json)
+  c.JSON(200, gin.H{"message": m})
+}
+
+func SendMessage(user *models.User, roomSlug string, body string) (*models.MessageWithUser, error) {
+  room, err := models.FindRoom(roomSlug, user.TeamId)
+  if err != nil {
+    return nil, err
+  }
 
   m := &models.Message{
     RoomId: room.Id,
     UserId: user.Id,
-    Body: json.Body,
+    Body: body,
   }
-
   err = models.CreateMessage(m)
-  if err != nil {
-    c.Fail(500, err)
-  }
-
-  c.JSON(200, gin.H{"message": m})
+  mu := models.NewMessageWithUser(m, user)
+  Socketio_Server.BroadcastTo(room.Id, "message", mu)
+  return mu, err
 }

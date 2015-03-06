@@ -12,11 +12,12 @@ import (
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	router := gin.Default()
-	router.Use(cors.Middleware(cors.Options{
+	co := cors.Options{
 		AllowCredentials: true,
 		AllowMethods:     []string{"GET", "OPTIONS", "POST"},
 		AllowOrigins:     []string{"*"},
-	}))
+	}
+	router.Use(cors.Middleware(co))
 
 	router.OPTIONS("/*cors", func(c *gin.Context) {
 		c.JSON(200, gin.H{"ok": "ok"})
@@ -50,5 +51,12 @@ func main() {
 		port = "3000"
 	}
 
+	// socket.io
+	router.GET("/socket.io/", handlers.SocketIOCors, handlers.SocketHandler)
+	router.POST("/socket.io/", handlers.SocketIOCors, handlers.SocketHandler)
+	router.Handle("WS", "/socket.io/", []gin.HandlerFunc{handlers.SocketIOCors, handlers.SocketHandler})
+	router.Handle("WSS", "/socket.io/", []gin.HandlerFunc{handlers.SocketIOCors, handlers.SocketHandler})
+
+	handlers.SetupSocketIOServer()
 	router.Run(":" + port)
 }
