@@ -27,10 +27,10 @@ type MessageWithUser struct {
 
 func NewMessageWithUser(message *Message, user *User) *MessageWithUser {
 	return &MessageWithUser{
-		Id: message.Id,
+		Id:        message.Id,
 		CreatedAt: message.CreatedAt,
-		Body: message.Body,
-		Username: user.Username,
+		Body:      message.Body,
+		Username:  user.Username,
 		AvatarUrl: user.AvatarUrl,
 	}
 }
