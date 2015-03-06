@@ -41,6 +41,7 @@ func main() {
 	a.GET("/users/find", handlers.UsersFindOne)
 	a.GET("/rooms", handlers.RoomsIndex)
 	a.POST("/rooms", handlers.RoomsCreate)
+	a.GET("/unread", handlers.RoomsUnread)
 	a.GET("/rooms/:room", handlers.RoomsShow)
 	a.GET("/rooms/:room/messages", handlers.MessagesIndex)
 	a.POST("/rooms/:room/messages", handlers.MessagesCreate)

@@ -3,6 +3,8 @@ package models
 import (
 	"database/sql"
 	"time"
+
+	"gopkg.in/gorp.v1"
 )
 
 type Room struct {
@@ -44,4 +46,15 @@ func Subscribers(roomId string) (*[]string, error) {
 	}
 
 	return &subscribers, err
+}
+
+func (o *Room) PreInsert(s gorp.SqlExecutor) error {
+	o.CreatedAt = time.Now()
+	o.UpdatedAt = o.CreatedAt
+	return nil
+}
+
+func (o *Room) PreUpdate(s gorp.SqlExecutor) error {
+	o.UpdatedAt = time.Now()
+	return nil
 }
