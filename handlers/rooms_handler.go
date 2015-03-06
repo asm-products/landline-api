@@ -22,7 +22,15 @@ func RoomsIndex(c *gin.Context) {
 	}
 
 	var rooms []models.Room
-	_, err = models.Db.Select(&rooms, "select * from rooms where team_id=$1", user.TeamId)
+	_, err = models.Db.Select(
+		&rooms,
+		"select * from rooms where team_id=$1",
+		user.TeamId,
+	)
+
+	if err != nil {
+		c.Fail(500, err)
+	}
 
 	c.JSON(200, gin.H{"rooms": rooms})
 }

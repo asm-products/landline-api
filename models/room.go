@@ -8,13 +8,13 @@ import (
 )
 
 type Room struct {
-	Id        string    `db:"id" json:"id"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	DeletedAt time.Time `db:"deleted_at" json:"deleted_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
-	TeamId    string    `db:"team_id" json:"team_id"`
-	Slug      string    `db:"slug" json:"slug"`
-	Topic     string    `db:"topic" json:"topic"`
+	Id        string     `db:"id" json:"id"`
+	CreatedAt time.Time  `db:"created_at" json:"created_at"`
+	DeletedAt *time.Time `db:"deleted_at" json:"deleted_at"`
+	UpdatedAt time.Time  `db:"updated_at" json:"updated_at"`
+	TeamId    string     `db:"team_id" json:"team_id"`
+	Slug      string     `db:"slug" json:"slug"`
+	Topic     string     `db:"topic" json:"topic"`
 }
 
 func DeleteRoom(slug, teamId string) error {

@@ -53,6 +53,12 @@ func main() {
 		Topic:  "general",
 	})
 
+	_, err = models.FindOrCreateRoom(&models.Room{
+		TeamId: team.Id,
+		Slug:   "random",
+		Topic:  "random",
+	})
+
 	if err != nil {
 		log.Fatal(err)
 	}

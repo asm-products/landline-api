@@ -54,6 +54,18 @@ func FindUsers(teamId string) ([]User, error) {
 	return users, err
 }
 
+func FindRecentlyOnlineUsers(teamId string) ([]User, error) {
+	var users []User
+	_, err := Db.Select(
+		&users,
+		`SELECT * FROM users WHERE team_id = $1
+		and last_online_at >= now() - '2 hour'::INTERVAL`,
+		teamId,
+	)
+
+	return users, err
+}
+
 func UnreadRooms(userId string) ([]byte, error) {
 	req, err := http.NewRequest(
 		"GET",
