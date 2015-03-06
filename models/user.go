@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"encoding/json"
 
 	"gopkg.in/gorp.v1"
 )
@@ -23,6 +24,15 @@ type User struct {
 	ProfileUrl string `db:"profile_url" json:"profile_url"`
 	RealName   string `db:"real_name" json:"real_name"`
 	Username   string `db:"username" json:"username"`
+}
+
+type Article struct {
+    UnreadRoomResponse `json:"article"`
+}
+
+type UnreadRoomResponse struct {
+    UserId string   `json:"key"`
+    Rooms  []string `json:"pending"`
 }
 
 func FindOrCreateUserByExternalId(fields *User) (*User, error) {
@@ -54,6 +64,7 @@ func FindUsers(teamId string) ([]User, error) {
 	return users, err
 }
 
+
 func UnreadRooms(userId string) ([]byte, error) {
 	req, err := http.NewRequest(
 		"GET",
@@ -73,7 +84,12 @@ func UnreadRooms(userId string) ([]byte, error) {
 
 	defer res.Body.Close()
 
-	return ioutil.ReadAll(res.Body)
+	article := make([]Article,0)
+	json.Unmarshal(res.Body, &article)
+	// Look up rooms here
+
+
+	return ioutil.ReadAll(article)
 }
 
 func (o *User) PreInsert(s gorp.SqlExecutor) error {
