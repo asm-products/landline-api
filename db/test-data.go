@@ -35,6 +35,24 @@ func main() {
 	}
 
 	err = dbmap.Insert(team)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var t models.Team
+	err = dbmap.SelectOne(&t, "select * from teams where slug=$1", team.Slug)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = models.FindOrCreateRoom(&models.Room{
+		TeamId: team.Id,
+		Slug:   "general",
+		Topic:  "general",
+	})
+
 	if err != nil {
 		log.Fatal(err)
 	}

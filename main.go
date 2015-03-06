@@ -26,6 +26,7 @@ func main() {
 	// Unauthenticated routes
 	router.GET("/sessions/new", handlers.SessionsNew)
 	router.GET("/sessions/sso", handlers.SessionsLoginSSO)
+
 	router.POST("/teams", handlers.TeamsCreate)
 	router.POST("/teams/:slug", handlers.TeamsLogin)
 
@@ -34,16 +35,21 @@ func main() {
 	t.Use(handlers.TeamAuth(os.Getenv("SECRET")))
 	t.GET("/", handlers.TeamsShow)
 	t.PUT("/", handlers.TeamsUpdate)
+	t.POST("/rooms", handlers.RoomsCreate)
+	t.PUT("/rooms/:room", handlers.RoomsUpdate)
+	t.DELETE("/rooms/:room", handlers.RoomsDelete)
 
 	// authenticated routes
 	a := router.Group("/")
 	a.Use(handlers.Auth(os.Getenv("SECRET")))
+	a.GET("/unread", handlers.RoomsUnread)
+
 	a.GET("/users", handlers.UsersIndex)
 	a.GET("/users/find", handlers.UsersFindOne)
+
 	a.GET("/rooms", handlers.RoomsIndex)
-	a.POST("/rooms", handlers.RoomsCreate)
-	a.GET("/unread", handlers.RoomsUnread)
 	a.GET("/rooms/:room", handlers.RoomsShow)
+
 	a.GET("/rooms/:room/messages", handlers.MessagesIndex)
 	a.POST("/rooms/:room/messages", handlers.MessagesCreate)
 

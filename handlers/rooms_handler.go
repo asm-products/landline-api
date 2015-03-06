@@ -50,6 +50,19 @@ func RoomsCreate(c *gin.Context) {
 	c.JSON(200, gin.H{"room": room})
 }
 
+func RoomsDelete(c *gin.Context) {
+	user, err := GetUserFromContext(c)
+	if err != nil {
+		c.Fail(500, err)
+	}
+	err = models.DeleteRoom(c.Params.ByName("room"), user.TeamId)
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	c.String(200, "ok")
+}
+
 func RoomsShow(c *gin.Context) {
 	user, err := GetUserFromContext(c)
 	if err != nil {
@@ -79,6 +92,29 @@ func RoomsUnread(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"unread": unread})
+}
+
+func RoomsUpdate(c *gin.Context) {
+	user, err := GetUserFromContext(c)
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	var json RoomJSON
+	slug := c.Params.ByName("room")
+	c.Bind(&json)
+
+	r := &models.Room{
+		Slug:  json.Slug,
+		Topic: json.Topic,
+	}
+
+	room, err := models.UpdateRoom(slug, user.TeamId, r)
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	c.JSON(200, room)
 }
 
 func createPixel(roomId string, userId string) string {

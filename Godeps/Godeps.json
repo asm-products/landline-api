@@ -1,9 +1,6 @@
 {
 	"ImportPath": "github.com/asm-products/landline-api",
-	"GoVersion": "go1.3.3",
-	"Packages": [
-		"./..."
-	],
+	"GoVersion": "go1.4.2",
 	"Deps": [
 		{
 			"ImportPath": "bitbucket.org/liamstask/goose/cmd/goose",
@@ -22,6 +19,19 @@
 			"ImportPath": "github.com/gin-gonic/gin",
 			"Comment": "v0.5",
 			"Rev": "50e7e427300a7eeeb299a4cd5bc1ebfa04d48528"
+		},
+		{
+			"ImportPath": "github.com/googollee/go-engine.io",
+			"Rev": "597faf3df88a01780a5881fafbcbccd9d5c3fab0"
+		},
+		{
+			"ImportPath": "github.com/googollee/go-socket.io",
+			"Comment": "0.9.x-23-g31886c5",
+			"Rev": "31886c5636253259f3c028ee398e780d2b1d1696"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Rev": "ab5b3a61f5b6aa323d66ece457334396c4ccdd03"
 		},
 		{
 			"ImportPath": "github.com/julienschmidt/httprouter",

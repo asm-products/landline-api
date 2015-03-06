@@ -11,26 +11,29 @@ import (
 )
 
 type Team struct {
-	Id                string    `db:"id" 									json:"id"`
-	CreatedAt         time.Time `db:"created_at" 					json:"created_at"`
-	UpdatedAt         time.Time `db:"updated_at" 					json:"updated_at"`
-	Email             string    `db:"email" 							json:"email"`
-	EncryptedPassword string    `db:"encrypted_password" 	json:"encrypted_password"`
-	SSOSecret         string    `db:"sso_secret" 					json:"-"`
-	SSOUrl            string    `db:"sso_url" 						json:"sso_url"`
-	Slug              string    `db:"slug" 								json:"slug"`
+	Id                string    `db:"id" json:"id"`
+	CreatedAt         time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt         time.Time `db:"updated_at" json:"updated_at"`
+	Email             string    `db:"email" json:"email"`
+	EncryptedPassword string    `db:"encrypted_password" json:"encrypted_password"`
+	SSOSecret         string    `db:"sso_secret" json:"-"`
+	SSOUrl            string    `db:"sso_url" json:"sso_url"`
+	Slug              string    `db:"slug" json:"slug"`
 }
 
 func FindOrCreateTeam(fields *Team) (*Team, error) {
 	var team Team
-	err := Db.SelectOne(&team, "select * from Teams where slug=$1", fields.Slug)
+	err := Db.SelectOne(&team, "select * from teams where slug=$1", fields.Slug)
 	if err == sql.ErrNoRows {
 		err = Db.Insert(fields)
-		_ = Db.Insert(Room{
+
+		_ = Db.SelectOne(&team, "select * from teams where slug=$1", fields.Slug)
+		_, _ = FindOrCreateRoom(&Room{
 			TeamId: team.Id,
 			Slug:   "general",
 			Topic:  "general",
 		})
+
 		return fields, err
 	}
 	return &team, err
@@ -38,7 +41,7 @@ func FindOrCreateTeam(fields *Team) (*Team, error) {
 
 func FindTeamBySlug(slug string) *Team {
 	var team Team
-	err := Db.SelectOne(&team, "select * from Teams where slug=$1", slug)
+	err := Db.SelectOne(&team, "select * from teams where slug=$1", slug)
 	if err != nil {
 		panic(err)
 	}
@@ -51,6 +54,22 @@ func FindTeamById(id string) *Team {
 	if err != nil {
 		panic(err)
 	}
+	return &team
+}
+
+func FindTeamBySecret(slug, secret string) *Team {
+	var team Team
+	err := Db.SelectOne(
+		&team,
+		"select * from teams where slug = $1 and sso_secret = $2",
+		slug,
+		secret,
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
 	return &team
 }
 

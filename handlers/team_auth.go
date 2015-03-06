@@ -13,11 +13,19 @@ func TeamAuth(secret string) gin.HandlerFunc {
 		})
 
 		if err != nil {
-			c.Fail(401, err)
+			username, _, ok := c.Request.BasicAuth()
+
+			if !ok {
+				c.Fail(401, err)
+			}
+
+			team := models.FindTeamBySecret(c.Params.ByName("slug"), username)
+
+			c.Set("team", team)
+		} else {
+			team := models.FindTeamById(token.Claims["id"].(string))
+
+			c.Set("team", team)
 		}
-
-		team := models.FindTeamById(token.Claims["id"].(string))
-
-		c.Set("team", team)
 	}
 }

@@ -10,10 +10,21 @@ import (
 type Room struct {
 	Id        string    `db:"id" json:"id"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	DeletedAt time.Time `db:"deleted_at" json:"deleted_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 	TeamId    string    `db:"team_id" json:"team_id"`
 	Slug      string    `db:"slug" json:"slug"`
 	Topic     string    `db:"topic" json:"topic"`
+}
+
+func DeleteRoom(slug, teamId string) error {
+	var room Room
+	err := Db.SelectOne(&room, "select * from rooms where slug=$1 and team_id=$2", slug, teamId)
+	if err != nil {
+		panic(err)
+	}
+	_, err = Db.Delete(&room)
+	return err
 }
 
 func FindOrCreateRoom(fields *Room) (*Room, error) {
@@ -46,6 +57,21 @@ func Subscribers(roomId string) (*[]string, error) {
 	}
 
 	return &subscribers, err
+}
+
+func UpdateRoom(slug, teamId string, fields *Room) (*Room, error) {
+	var room Room
+	err := Db.SelectOne(&room, "select * from rooms where slug=$1 and team_id=$2", slug, teamId)
+	if err != nil {
+		panic(err)
+	}
+
+	room.Slug = fields.Slug
+	room.Topic = fields.Topic
+
+	_, err = Db.Update(&room)
+
+	return &room, err
 }
 
 func (o *Room) PreInsert(s gorp.SqlExecutor) error {
