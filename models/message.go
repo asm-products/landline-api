@@ -25,6 +25,16 @@ type MessageWithUser struct {
 	AvatarUrl string    `db:"avatar_url" json:"avatar_url"`
 }
 
+func NewMessageWithUser(message *Message, user *User) *MessageWithUser {
+	return &MessageWithUser{
+		Id: message.Id,
+		CreatedAt: message.CreatedAt,
+		Body: message.Body,
+		Username: user.Username,
+		AvatarUrl: user.AvatarUrl,
+	}
+}
+
 type UnreadAlert struct {
 	Key        string    `json:"key"`
 	Recipients *[]string `json:"recipients"`
