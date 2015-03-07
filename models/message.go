@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"os"
 	"time"
-
-	"github.com/asm-products/landline-api/utils"
 )
 
 type Message struct {
