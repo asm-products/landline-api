@@ -1,6 +1,7 @@
 # Landline API
 
 <a href="https://assembly.com/landline/bounties?utm_campaign=assemblage&utm_source=landline&utm_medium=repo_badge"><img src="https://asm-badger.herokuapp.com/landline/badges/tasks.svg" height="24px" alt="Open Tasks" /></a>
+[![Build Status](https://travis-ci.org/asm-products/landline-api.png?branch=master)](https://travis-ci.org/asm-products/landline-api)
 
 ## Drop in chat for your app
 
@@ -10,6 +11,7 @@ This is a product being built by the Assembly community. You can help push this 
 
     $ go get bitbucket.org/liamstask/goose/cmd/goose
     $ go get github.com/codegangsta/gin
+    $ godep restore
     $ ./db/setup
     $ ./db/migrate
     $ forego run go run db/test-data.go
