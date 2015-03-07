@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"time"
 
+	"github.com/asm-products/landline-api/utils"
 	"gopkg.in/gorp.v1"
 )
 
@@ -19,6 +20,20 @@ type Team struct {
 	SSOSecret         string    `db:"sso_secret" json:"-"`
 	SSOUrl            string    `db:"sso_url" json:"sso_url"`
 	Slug              string    `db:"slug" json:"slug"`
+	WebhookUrl        *string   `db:"webhook_url" json:"webhook_url"`
+}
+
+func AlertTeamOfMentions(roomId, body string, mentions []string) error {
+	room := FindRoomById(roomId)
+	team := FindTeamById(room.TeamId)
+
+	if team.WebhookUrl != nil {
+		err := utils.PostMentionsToWebhook(*team.WebhookUrl, team.SSOSecret, body, mentions)
+
+		return err
+	}
+
+	return nil
 }
 
 func FindOrCreateTeam(fields *Team) (*Team, error) {

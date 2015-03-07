@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/asm-products/landline-api/utils"
+	"gopkg.in/gorp.v1"
 )
 
 type Message struct {
@@ -62,8 +63,6 @@ func FindMessages(roomId string) ([]MessageWithUser, error) {
 }
 
 func CreateMessage(fields *Message) error {
-	fields.CreatedAt = time.Now()
-	fields.UpdatedAt = time.Now()
 	err := Db.Insert(fields)
 
 	if err != nil {
@@ -72,7 +71,16 @@ func CreateMessage(fields *Message) error {
 
 	err = registerUnread(fields.RoomId)
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	mentions := utils.ParseUserMentions(fields.Body)
+
+	if len(mentions) > 0 {
+		AlertTeamOfMentions(fields.RoomId, fields.Body, mentions)
+	}
+	return nil
 }
 
 func buildReadraptorRequestBody(roomId string) (*bytes.Reader, error) {
@@ -116,4 +124,16 @@ func registerUnread(roomId string) error {
 	_, err = client.Do(req)
 
 	return err
+}
+
+func (o *Message) PreInsert(s gorp.SqlExecutor) error {
+	o.CreatedAt = time.Now()
+	o.UpdatedAt = o.CreatedAt
+
+	return nil
+}
+
+func (o *Message) PreUpdate(s gorp.SqlExecutor) error {
+	o.UpdatedAt = time.Now()
+	return nil
 }
