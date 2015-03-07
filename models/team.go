@@ -28,11 +28,6 @@ func FindOrCreateTeam(fields *Team) (*Team, error) {
 		err = Db.Insert(fields)
 
 		_ = Db.SelectOne(&team, "select * from teams where slug=$1", fields.Slug)
-		_, _ = FindOrCreateRoom(&Room{
-			TeamId: team.Id,
-			Slug:   "general",
-			Topic:  "general",
-		})
 
 		return fields, err
 	}
@@ -104,6 +99,19 @@ func Sign(secret, payload []byte) string {
 func (o *Team) PreInsert(s gorp.SqlExecutor) error {
 	o.CreatedAt = time.Now()
 	o.UpdatedAt = o.CreatedAt
+
+	_, _ = FindOrCreateRoom(&Room{
+		TeamId: o.Id,
+		Slug:   "general",
+		Topic:  "general",
+	})
+
+	_, _ = FindOrCreateRoom(&Room{
+		TeamId: o.Id,
+		Slug:   "random",
+		Topic:  "random",
+	})
+
 	return nil
 }
 
