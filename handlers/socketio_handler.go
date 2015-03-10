@@ -40,6 +40,7 @@ func SocketHandler(c *gin.Context) {
 			if err != nil {
 				return "error: " + err.Error()
 			}
+			joinRoomMemberships(user.Id, so)
 			return "success"
 		})
 
@@ -49,11 +50,11 @@ func SocketHandler(c *gin.Context) {
 			if user == nil {
 				return "error: not authenticated"
 			}
-			room, err := models.FindRoom(roomSlug, user.TeamId)
+			membership, err := JoinRoom(user, roomSlug)
 			if err != nil {
 				return "error: " + err.Error()
 			}
-			err = so.Join(room.Id)
+			err = so.Join(membership.RoomId)
 			if err != nil {
 				return "error: " + err.Error()
 			}
@@ -65,11 +66,11 @@ func SocketHandler(c *gin.Context) {
 			if user == nil {
 				return "error: not authenticated"
 			}
-			room, err := models.FindRoom(roomSlug, user.TeamId)
+			rid, err := LeaveRoom(user, roomSlug)
 			if err != nil {
 				return "error: " + err.Error()
 			}
-			err = so.Leave(room.Id)
+			err = so.Leave(rid)
 			if err != nil {
 				return "error: " + err.Error()
 			}
@@ -97,6 +98,18 @@ func SocketHandler(c *gin.Context) {
 	})
 
 	Socketio_Server.ServeHTTP(c.Writer, c.Request)
+}
+
+// A helper function to join all rooms the user is a member of.
+func joinRoomMemberships(userId string, so socketio.Socket) error {
+	ms, err := models.FindRoomMemberships(userId)
+	for _, m := range ms {
+		if err != nil {
+			return err
+		}
+		err = so.Join(m.RoomId)
+	}
+	return err
 }
 
 // Browsers complain when the allowed origin is *, and there are cookies being set, which socket.io requires.
