@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/asm-products/landline-api/utils"
@@ -63,6 +64,13 @@ func FindMessages(roomId string) ([]MessageWithUser, error) {
 }
 
 func CreateMessage(fields *Message) error {
+	mentions := utils.ParseUserMentions(fields.Body)
+
+	if len(mentions) > 0 {
+		AlertTeamOfMentions(fields.RoomId, fields.Body, mentions)
+		fields.Body = replaceMentionsWithLinks(fields, mentions)
+	}
+
 	err := Db.Insert(fields)
 
 	if err != nil {
@@ -77,11 +85,6 @@ func CreateMessage(fields *Message) error {
 
 	PostToTeamWebhook(fields.RoomId, fields)
 
-	mentions := utils.ParseUserMentions(fields.Body)
-
-	if len(mentions) > 0 {
-		AlertTeamOfMentions(fields.RoomId, fields.Body, mentions)
-	}
 	return nil
 }
 
@@ -126,6 +129,24 @@ func registerUnread(roomId string) error {
 	_, err = client.Do(req)
 
 	return err
+}
+
+func replaceMentionsWithLinks(fields *Message, mentions []string) string {
+	room := FindRoomById(fields.RoomId)
+	team := FindTeamById(room.TeamId)
+	body := fields.Body
+	for i := range mentions {
+		u, err := FindUserByUsernameAndTeam(mentions[i], team.Id)
+
+		if err != nil {
+			continue
+		}
+
+		link := `<a href="` + u.ProfileUrl + `">@` + u.Username + `</a>`
+		body = strings.Replace(body, `@`+mentions[i], link, -1)
+	}
+
+	return body
 }
 
 func (o *Message) PreInsert(s gorp.SqlExecutor) error {

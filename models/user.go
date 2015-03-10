@@ -43,6 +43,17 @@ func FindUser(id string) (*User, error) {
 	return &user, err
 }
 
+func FindUserByUsernameAndTeam(username, teamId string) (*User, error) {
+	var user User
+	err := Db.SelectOne(
+		&user,
+		`select * from users where username = $1 and team_id = $2 limit 1`,
+		username,
+		teamId,
+	)
+	return &user, err
+}
+
 func FindUsers(teamId string) ([]User, error) {
 	var users []User
 	_, err := Db.Select(

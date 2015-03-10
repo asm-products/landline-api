@@ -24,25 +24,27 @@ type MessageWebhookBody struct {
 }
 
 func PostMentionsToWebhook(url, secret, body string, usernames []string) error {
-	requestBody, err := buildMentionsRequestBody(body, usernames)
-
-	if err != nil {
-		return err
-	}
-
-	req, err := http.NewRequest(
-		"POST",
-		url,
-		requestBody,
-	)
-
-	req.SetBasicAuth(secret, "")
-
-	client := &http.Client{}
-
-	_, err = client.Do(req)
-
-	return err
+	// make this method opt-in
+	return nil
+	// requestBody, err := buildMentionsRequestBody(body, usernames)
+	//
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// req, err := http.NewRequest(
+	// 	"POST",
+	// 	url,
+	// 	requestBody,
+	// )
+	//
+	// req.SetBasicAuth(secret, "")
+	//
+	// client := &http.Client{}
+	//
+	// _, err = client.Do(req)
+	//
+	// return err
 }
 
 func PostMessageToWebhook(url, secret string, message Message) error {
