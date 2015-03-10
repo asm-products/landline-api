@@ -23,7 +23,9 @@ func DeleteRoom(slug, teamId string) error {
 	if err != nil {
 		panic(err)
 	}
-	_, err = Db.Delete(&room)
+	t := time.Now()
+	room.DeletedAt = &t
+	_, err = Db.Update(room)
 	return err
 }
 
@@ -37,7 +39,7 @@ func FindOrCreateRoom(fields *Room) (*Room, error) {
 	return &room, err
 }
 
-func FindRoom(slug string, teamId string) (*Room, error) {
+func FindRoom(slug, teamId string) (*Room, error) {
 	var room Room
 	err := Db.SelectOne(&room, "select * from Rooms where slug=$1 and team_id=$2", slug, teamId)
 	return &room, err
