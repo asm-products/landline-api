@@ -75,6 +75,8 @@ func CreateMessage(fields *Message) error {
 		return err
 	}
 
+	PostToTeamWebhook(fields.RoomId, fields)
+
 	mentions := utils.ParseUserMentions(fields.Body)
 
 	if len(mentions) > 0 {

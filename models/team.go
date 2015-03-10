@@ -83,6 +83,30 @@ func FindTeamBySecret(slug, secret string) *Team {
 	return &team
 }
 
+func PostToTeamWebhook(roomId string, message *Message) error {
+	room := FindRoomById(roomId)
+	team := FindTeamById(room.TeamId)
+	user, err := FindUser(message.UserId)
+
+	if err != nil {
+		return err
+	}
+
+	m := utils.Message{
+		Body:   message.Body,
+		RoomId: roomId,
+		UserId: user.ExternalId,
+	}
+
+	if team.WebhookUrl != nil {
+		err := utils.PostMessageToWebhook(*team.WebhookUrl, team.SSOSecret, m)
+
+		return err
+	}
+
+	return nil
+}
+
 func UpdateTeam(slug string, fields *Team) (*Team, error) {
 	var team Team
 	err := Db.SelectOne(&team, "select * from Teams where slug=$1", slug)
