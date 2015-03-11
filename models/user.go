@@ -87,7 +87,7 @@ func FindRecentlyOnlineUsers(teamId string) ([]User, error) {
 	return users, err
 }
 
-func UnreadRooms(userId string) ([]byte, error) {
+func UnreadRooms(userId string) ([]Article, error) {
 	req, err := http.NewRequest(
 		"GET",
 		os.Getenv("RR_URL")+"/readers/"+userId,
@@ -95,7 +95,7 @@ func UnreadRooms(userId string) ([]byte, error) {
 	)
 
 	req.SetBasicAuth(os.Getenv("RR_PRIVATE_KEY"), "")
-
+	
 	client := &http.Client{}
 
 	res, err := client.Do(req)
@@ -105,11 +105,12 @@ func UnreadRooms(userId string) ([]byte, error) {
 	}
 
 	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
 
 	article := make([]Article,0)
-	json.Unmarshal(res.Body, &article)
+	json.Unmarshal(body, &article)
 
-	return ioutil.ReadAll(article)
+	return article, err
 }
 
 func (o *User) PreInsert(s gorp.SqlExecutor) error {
