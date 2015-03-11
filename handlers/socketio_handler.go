@@ -124,7 +124,7 @@ func joinRoomMemberships(userId string, so socketio.Socket) error {
 		if err != nil {
 			return err
 		}
-		err = so.Join(m.RoomId)
+		err = so.Join(m)
 	}
 	return err
 }
