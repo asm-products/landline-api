@@ -53,6 +53,17 @@ func FindUser(id string) (*User, error) {
 	return &user, err
 }
 
+func FindUserByUsernameAndTeam(username, teamId string) (*User, error) {
+	var user User
+	err := Db.SelectOne(
+		&user,
+		`select * from users where username = $1 and team_id = $2 limit 1`,
+		username,
+		teamId,
+	)
+	return &user, err
+}
+
 func FindUsers(teamId string) ([]User, error) {
 	var users []User
 	_, err := Db.Select(
@@ -64,6 +75,17 @@ func FindUsers(teamId string) ([]User, error) {
 	return users, err
 }
 
+func FindRecentlyOnlineUsers(teamId string) ([]User, error) {
+	var users []User
+	_, err := Db.Select(
+		&users,
+		`SELECT * FROM users WHERE team_id = $1
+		and last_online_at >= now() - '2 hour'::INTERVAL`,
+		teamId,
+	)
+
+	return users, err
+}
 
 func UnreadRooms(userId string) ([]byte, error) {
 	req, err := http.NewRequest(

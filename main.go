@@ -14,7 +14,7 @@ func main() {
 	router := gin.Default()
 	co := cors.Options{
 		AllowCredentials: true,
-		AllowMethods:     []string{"GET", "OPTIONS", "POST"},
+		AllowMethods:     []string{"GET", "OPTIONS", "POST", "PUT", "DELETE"},
 		AllowOrigins:     []string{"*"},
 	}
 	router.Use(cors.Middleware(co))
@@ -52,6 +52,9 @@ func main() {
 
 	a.GET("/rooms/:room/messages", handlers.MessagesIndex)
 	a.POST("/rooms/:room/messages", handlers.MessagesCreate)
+
+	a.PUT("/rooms/:room/memberships", handlers.RoomMembershipsCreate)
+	a.DELETE("/rooms/:room/memberships", handlers.RoomMembershipsDelete)
 
 	port := os.Getenv("PORT")
 	if len(port) == 0 {

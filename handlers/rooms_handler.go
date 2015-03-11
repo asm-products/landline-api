@@ -22,9 +22,25 @@ func RoomsIndex(c *gin.Context) {
 	}
 
 	var rooms []models.Room
-	_, err = models.Db.Select(&rooms, "select * from rooms where team_id=$1", user.TeamId)
+	_, err = models.Db.Select(
+		&rooms,
+		`select * from rooms where team_id = $1`,
+		user.TeamId,
+	)
 
-	c.JSON(200, gin.H{"rooms": rooms})
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	memberships, err := models.FindRoomMemberships(user.Id)
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	c.JSON(200, gin.H{
+		"rooms":       rooms,
+		"memberships": memberships,
+	})
 }
 
 func RoomsCreate(c *gin.Context) {

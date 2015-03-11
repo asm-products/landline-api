@@ -8,13 +8,13 @@ import (
 )
 
 type Room struct {
-	Id        string    `db:"id" json:"id"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	DeletedAt time.Time `db:"deleted_at" json:"deleted_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
-	TeamId    string    `db:"team_id" json:"team_id"`
-	Slug      string    `db:"slug" json:"slug"`
-	Topic     string    `db:"topic" json:"topic"`
+	Id        string     `db:"id" json:"id"`
+	CreatedAt time.Time  `db:"created_at" json:"created_at"`
+	DeletedAt *time.Time `db:"deleted_at" json:"deleted_at"`
+	UpdatedAt time.Time  `db:"updated_at" json:"updated_at"`
+	TeamId    string     `db:"team_id" json:"team_id"`
+	Slug      string     `db:"slug" json:"slug"`
+	Topic     string     `db:"topic" json:"topic"`
 }
 
 func DeleteRoom(slug, teamId string) error {
@@ -23,7 +23,9 @@ func DeleteRoom(slug, teamId string) error {
 	if err != nil {
 		panic(err)
 	}
-	_, err = Db.Delete(&room)
+	t := time.Now()
+	room.DeletedAt = &t
+	_, err = Db.Update(room)
 	return err
 }
 
@@ -37,10 +39,21 @@ func FindOrCreateRoom(fields *Room) (*Room, error) {
 	return &room, err
 }
 
-func FindRoom(slug string, teamId string) (*Room, error) {
+func FindRoom(slug, teamId string) (*Room, error) {
 	var room Room
 	err := Db.SelectOne(&room, "select * from Rooms where slug=$1 and team_id=$2", slug, teamId)
 	return &room, err
+}
+
+func FindRoomById(id string) *Room {
+	var room Room
+	err := Db.SelectOne(&room, "select * from rooms where id = $1", id)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return &room
 }
 
 func Subscribers(roomId string) (*[]string, error) {

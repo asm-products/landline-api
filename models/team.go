@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"time"
 
+	"github.com/asm-products/landline-api/utils"
 	"gopkg.in/gorp.v1"
 )
 
@@ -19,6 +20,20 @@ type Team struct {
 	SSOSecret         string    `db:"sso_secret" json:"-"`
 	SSOUrl            string    `db:"sso_url" json:"sso_url"`
 	Slug              string    `db:"slug" json:"slug"`
+	WebhookUrl        *string   `db:"webhook_url" json:"webhook_url"`
+}
+
+func AlertTeamOfMentions(roomId, body string, mentions []string) error {
+	room := FindRoomById(roomId)
+	team := FindTeamById(room.TeamId)
+
+	if team.WebhookUrl != nil {
+		err := utils.PostMentionsToWebhook(*team.WebhookUrl, team.SSOSecret, body, mentions)
+
+		return err
+	}
+
+	return nil
 }
 
 func FindOrCreateTeam(fields *Team) (*Team, error) {
@@ -28,11 +43,6 @@ func FindOrCreateTeam(fields *Team) (*Team, error) {
 		err = Db.Insert(fields)
 
 		_ = Db.SelectOne(&team, "select * from teams where slug=$1", fields.Slug)
-		_, _ = FindOrCreateRoom(&Room{
-			TeamId: team.Id,
-			Slug:   "general",
-			Topic:  "general",
-		})
 
 		return fields, err
 	}
@@ -73,6 +83,30 @@ func FindTeamBySecret(slug, secret string) *Team {
 	return &team
 }
 
+func PostToTeamWebhook(roomId string, message *Message) error {
+	room := FindRoomById(roomId)
+	team := FindTeamById(room.TeamId)
+	user, err := FindUser(message.UserId)
+
+	if err != nil {
+		return err
+	}
+
+	m := utils.Message{
+		Body:   message.Body,
+		RoomId: roomId,
+		UserId: user.ExternalId,
+	}
+
+	if team.WebhookUrl != nil {
+		err := utils.PostMessageToWebhook(*team.WebhookUrl, team.SSOSecret, m)
+
+		return err
+	}
+
+	return nil
+}
+
 func UpdateTeam(slug string, fields *Team) (*Team, error) {
 	var team Team
 	err := Db.SelectOne(&team, "select * from Teams where slug=$1", slug)
@@ -104,6 +138,19 @@ func Sign(secret, payload []byte) string {
 func (o *Team) PreInsert(s gorp.SqlExecutor) error {
 	o.CreatedAt = time.Now()
 	o.UpdatedAt = o.CreatedAt
+
+	_, _ = FindOrCreateRoom(&Room{
+		TeamId: o.Id,
+		Slug:   "general",
+		Topic:  "general",
+	})
+
+	_, _ = FindOrCreateRoom(&Room{
+		TeamId: o.Id,
+		Slug:   "random",
+		Topic:  "random",
+	})
+
 	return nil
 }
 
