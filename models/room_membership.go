@@ -29,7 +29,7 @@ func DeleteRoomMembership(roomId, userId string) error {
 	}
 	t := time.Now()
 	membership.DeletedAt = &t
-	_, err = Db.Update(membership)
+	_, err = Db.Update(&membership)
 	return err
 }
 
@@ -44,15 +44,18 @@ func FindOrCreateRoomMembership(fields *RoomMembership) (*RoomMembership, error)
 	if err == sql.ErrNoRows {
 		err = Db.Insert(fields)
 		return fields, err
+	} else {
+		membership.DeletedAt = nil
+		_, err = Db.Update(&membership)
 	}
 	return &membership, err
 }
 
-func FindRoomMemberships(userId string) ([]RoomMembership, error) {
-	var memberships []RoomMembership
+func FindRoomMemberships(userId string) ([]string, error) {
+	var memberships []string
 	_, err := Db.Select(
 		&memberships,
-		`select room_id from room_memberships where user_id = $1`,
+		`select room_id from room_memberships where user_id = $1 and deleted_at is null`,
 		userId,
 	)
 

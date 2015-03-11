@@ -45,7 +45,7 @@ func MessagesCreate(c *gin.Context) {
 	c.JSON(200, gin.H{"message": m})
 }
 
-func SendMessage(user *models.User, roomSlug string, body string) (*models.MessageWithUser, error) {
+func SendMessage(user *models.User, roomSlug, body string) (*models.MessageWithUser, error) {
 	room, err := models.FindRoom(roomSlug, user.TeamId)
 	if err != nil {
 		return nil, err
