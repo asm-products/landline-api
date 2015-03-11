@@ -86,8 +86,6 @@ func UnreadRooms(userId string) ([]byte, error) {
 
 	article := make([]Article,0)
 	json.Unmarshal(res.Body, &article)
-	// Look up rooms here
-
 
 	return ioutil.ReadAll(article)
 }
