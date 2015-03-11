@@ -15,6 +15,24 @@ type sioMessage struct {
 	Room string
 }
 
+type socketIOResponse struct {
+	Success bool
+	Message string
+	Result interface{}
+}
+
+func newSuccessResponse(result interface{}) socketIOResponse {
+	return socketIOResponse{true, "", result}
+}
+
+func newErrorResponse(err error) socketIOResponse {
+	return socketIOResponse{false, err.Error(), nil}
+}
+
+func newAuthErrorResponse() socketIOResponse {
+	return newErrorResponse(fmt.Errorf("Not Authenticated."))
+}
+
 func SetupSocketIOServer() {
 	var err error
 	Socketio_Server, err = socketio.NewServer(nil)
@@ -33,59 +51,58 @@ func SocketHandler(c *gin.Context) {
 		// The socket.io client doesn't support sending headers, so we can't use
 		// the standard auth mechanism. To solve this, before doing anything else,
 		// the client should emit an "auth" event, with their JWT as the message.
-		so.On("auth", func(token string) string {
-			fmt.Println("auth: ", token)
+		so.On("auth", func(token string) socketIOResponse {
 			res, err := getUserFromJwt(token, os.Getenv("SECRET"))
 			user = res
 			if err != nil {
-				return "error: " + err.Error()
+				return newErrorResponse(err)
 			}
 			joinRoomMemberships(user.Id, so)
-			return "success"
+			return newSuccessResponse(nil)
 		})
 
 		// To receive notifications for a room, the client emits the 'join' event,
 		// with the room slug as the message.
-		so.On("join", func(roomSlug string) string {
+		so.On("join", func(roomSlug string) socketIOResponse {
 			if user == nil {
-				return "error: not authenticated"
+				return newAuthErrorResponse()
 			}
 			membership, err := JoinRoom(user, roomSlug)
 			if err != nil {
-				return "error: " + err.Error()
+				newErrorResponse(err)
 			}
 			err = so.Join(membership.RoomId)
 			if err != nil {
-				return "error: " + err.Error()
+				return newErrorResponse(err)
 			}
-			return "success"
+			return newSuccessResponse(nil)
 		})
 
 		// Works like the 'join' event.
-		so.On("leave", func(roomSlug string) string {
+		so.On("leave", func(roomSlug string) socketIOResponse {
 			if user == nil {
-				return "error: not authenticated"
+				return newAuthErrorResponse()
 			}
 			rid, err := LeaveRoom(user, roomSlug)
 			if err != nil {
-				return "error: " + err.Error()
+				return newErrorResponse(err)
 			}
 			err = so.Leave(rid)
 			if err != nil {
-				return "error: " + err.Error()
+				return newErrorResponse(err)
 			}
-			return "success"
+			return newSuccessResponse(nil)
 		})
 
-		so.On("message", func(m *sioMessage) string {
+		so.On("message", func(m *sioMessage) socketIOResponse {
 			if user == nil {
-				return "error: not authenticated"
+				return newAuthErrorResponse()
 			}
-			_, err := SendMessage(user, m.Room, m.Body)
+			msg, err := SendMessage(user, m.Room, m.Body)
 			if err != nil {
-				return "error: " + err.Error()
+				return newErrorResponse(err)
 			}
-			return "success"
+			return newSuccessResponse(msg)
 		})
 
 		so.On("disconnection", func() {
