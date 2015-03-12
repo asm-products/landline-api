@@ -75,7 +75,7 @@ func SocketHandler(c *gin.Context) {
 			if err != nil {
 				return newErrorResponse(err)
 			}
-			return newSuccessResponse(nil)
+			return newSuccessResponse(membership)
 		})
 
 		// Works like the 'join' event.
@@ -91,7 +91,7 @@ func SocketHandler(c *gin.Context) {
 			if err != nil {
 				return newErrorResponse(err)
 			}
-			return newSuccessResponse(nil)
+			return newSuccessResponse(rid)
 		})
 
 		so.On("message", func(m *sioMessage) socketIOResponse {
