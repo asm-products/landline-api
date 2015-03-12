@@ -32,6 +32,7 @@ func main() {
 
 	// session-keeping for landline.io
 	t := router.Group("/teams/:slug")
+	t.Use(cors.Middleware(co))
 	t.Use(handlers.TeamAuth(os.Getenv("SECRET")))
 	t.GET("/", handlers.TeamsShow)
 	t.PUT("/", handlers.TeamsUpdate)
@@ -43,6 +44,7 @@ func main() {
 	a := router.Group("/")
 	a.Use(handlers.Auth(os.Getenv("SECRET")))
 	a.GET("/unread", handlers.RoomsUnread)
+	a.POST("/upload", handlers.SignUpload)
 
 	a.GET("/users", handlers.UsersIndex)
 	a.GET("/users/find", handlers.UsersFindOne)
