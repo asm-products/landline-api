@@ -32,6 +32,7 @@ func main() {
 
 	// session-keeping for landline.io
 	t := router.Group("/teams/:slug")
+	t.Use(cors.Middleware(co))
 	t.Use(handlers.TeamAuth(os.Getenv("SECRET")))
 	t.GET("/", handlers.TeamsShow)
 	t.PUT("/", handlers.TeamsUpdate)
