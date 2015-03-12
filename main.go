@@ -43,6 +43,7 @@ func main() {
 	a := router.Group("/")
 	a.Use(handlers.Auth(os.Getenv("SECRET")))
 	a.GET("/unread", handlers.RoomsUnread)
+	a.POST("/upload", handlers.SignUpload)
 
 	a.GET("/users", handlers.UsersIndex)
 	a.GET("/users/find", handlers.UsersFindOne)
