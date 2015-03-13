@@ -14,9 +14,9 @@
                 console.log("Connected to socket.io");
                 resolve(socket);
             })
-            socket.on("message", function(message){
-                console.log("received message:");
-                console.log(message);
+            socket.on("message", function(message, room){
+                console.log("received message on "+room+":");
+                console.log(arguments);
             })
         });
 
