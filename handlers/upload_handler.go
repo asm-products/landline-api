@@ -49,7 +49,7 @@ func SignUpload(c *gin.Context) {
 	var json UploadJSON
 	c.Bind(&json)
 
-	key := `/attachments/` + user.Id + `/` + uuid.NewUUID().String() + extensions[json.ContentType]
+	key := `attachments/` + user.Id + `/` + uuid.NewUUID().String() + extensions[json.ContentType]
 
 	f := &Form{
 		Key:            key,
@@ -61,7 +61,7 @@ func SignUpload(c *gin.Context) {
 
 	f.build()
 
-	href := "https://s3.amazonaws.com/" + os.Getenv("S3_BUCKET") + key
+	href := "https://s3.amazonaws.com/" + os.Getenv("S3_BUCKET") + "/" + key
 
 	c.JSON(200, gin.H{"form": f, "href": href})
 }
@@ -73,12 +73,13 @@ func (f *Form) build() {
 
 func (f *Form) policy() string {
 	p := `{
-    "expiration":"` + time.Now().Add(time.Minute*30).UTC().String() + `",
+    "expiration":"` + time.Now().Add(time.Minute*30).UTC().Format(time.RFC3339) + `",
     "conditions": [
       { "bucket":"` + os.Getenv("S3_BUCKET") + `" },
       { "acl": "public-read" },
       { "cache-control": "max-age=31557600" },
-      { "content-type":"` + f.ContentType + `" }
+      { "content-type":"` + f.ContentType + `" },
+			["starts-with", "$key", "attachments/"]
     ]
   }`
 
@@ -87,7 +88,7 @@ func (f *Form) policy() string {
 
 func (f *Form) signature() string {
 	mac := hmac.New(sha1.New, []byte(os.Getenv("AWS_SECRET_ACCESS_KEY")))
-	mac.Write([]byte(f.policy()))
+	mac.Write([]byte(f.Policy))
 
 	return base64.StdEncoding.EncodeToString(mac.Sum(nil))
 }
