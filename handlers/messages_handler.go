@@ -58,6 +58,6 @@ func SendMessage(user *models.User, roomSlug, body string) (*models.MessageWithU
 	}
 	err = models.CreateMessage(m)
 	mu := models.NewMessageWithUser(m, user)
-	Socketio_Server.BroadcastTo(room.Id, "message", mu)
+	Socketio_Server.BroadcastTo(room.Id, "message", mu, roomSlug)
 	return mu, err
 }
