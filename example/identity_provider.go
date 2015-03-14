@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"os"
@@ -18,7 +17,6 @@ import (
 func main() {
 	secret := os.Args[1]
 
-	fmt.Println("starting with secret", secret)
 	r := gin.Default()
 	r.Use(cors.Middleware(cors.Options{
 		AllowCredentials: true,
