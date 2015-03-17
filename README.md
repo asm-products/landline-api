@@ -40,6 +40,54 @@ This is a product being built by the Assembly community. You can help push this 
     $ curl -H "Authorization: Bearer $TOKEN" localhost:3000/rooms
     {"rooms":[]}
 
+### Easily test the api using JavaScript
+
+If you're running the example identity provider at port 8989, you can go to localhost:8989/debug. You'll find an empty page, but when you open up the javascript console in your browser of choice, you'll see that there are a bunch of handy Javascript objects and functions to help you debug your changes to the api.
+
+#### Promises ####
+
+The javascript on this page uses Promises. If you're not familiar with them, check out [this html5rocks article on them](http://www.html5rocks.com/en/tutorials/es6/promises/), they're awesome.
+
+#### The  Session object
+
+
+The session object helps you make authenticated calls to the API. You don't construct them using the `new` keyword, but by calling `Session.create()`. This function returns a promise, which will resolve to a session as soon as we've obtained a session token from the API server.
+```js
+Session.create(function(sess){
+    // You can use 'sess' as the session in here.
+});
+```
+
+#### Session.immediate()
+
+When you're writing scripts, it's handy to know when your session token has been obtained, and your session is ready to use. But when you're just testing stuff in the javascript console, the request will probably be completed multiple seconds before you're done typing your next command. Session.immediate allows you to treat session creation as if it's asynchronous.
+```js
+sess = Session.immediate();
+// You can 'immediately' start using the session object.
+```
+
+#### session.makeCall(method, path, data)
+
+On a session object, you can call session.makeCall to make an api call. `method` is the HTTP request method, path is the path you'd like to request, including query parameters. If `data` is given, it'll be json serialized, and sent as the request body. This method returns a promise, which will resolve to the JSON parsed response text.
+
+```js
+Session.create(function(sess){
+    sess.makeCall("GET", "/rooms").then(roomsResponse){
+        // use the response in here.
+    }
+});
+
+#### boundLog
+
+the `boundLog` function does exactly the same thing as `console.log`, but it is already bound to the console object, so you can easily pass it as a callback.
+
+```js
+//within the javascript console:
+sess = Session.immediate();
+sess.makeCall("GET", "/rooms").then(boundLog);
+```
+
+This will log the javascript object returned by the /rooms endpoint to the console.
 
 ### How Assembly Works
 
