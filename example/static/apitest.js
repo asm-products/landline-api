@@ -36,3 +36,11 @@ Session.create = function(){
         xhr.send();
     });
 }
+
+Session.immediate = function(){
+    var sess = new Session(null);
+    Session.create().then(function(newsess){
+        sess.token = newsess.token;
+    });
+    return sess
+}
