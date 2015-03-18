@@ -6,39 +6,41 @@ import (
 )
 
 type TeamJSON struct {
-  Email string `json:"email" binding:"required"`
-  EncryptedPassword string `json:"password" binding:"required"`
-  SSOSecret string `json:"secret" binding:"required"`
-  SSOUrl string `json:"url" binding:"required"`
-  Slug string `json:"name" binding:"required"`
+	Email             string  `json:"email" binding:"required"`
+	EncryptedPassword string  `json:"password" binding:"required"`
+	SSOSecret         string  `json:"secret" binding:"required"`
+	SSOUrl            string  `json:"url" binding:"required"`
+	Slug              string  `json:"name" binding:"required"`
+	WebhookUrl        *string `json:"webhook_url"`
 }
 
 type LoginJSON struct {
 	EncryptedPassword string `json:"password" binding:"required"`
-	Slug string `json:"name" binding:"required"`
+	Slug              string `json:"name" binding:"required"`
 }
 
 func TeamsCreate(c *gin.Context) {
-  var json TeamJSON
+	var json TeamJSON
 
-  c.Bind(&json)
+	c.Bind(&json)
 
 	t := &models.Team{
-    Email: json.Email,
-    EncryptedPassword: json.EncryptedPassword,
-    SSOSecret: json.SSOSecret,
-    SSOUrl: json.SSOUrl,
-    Slug: json.Slug,
-  }
+		Email:             json.Email,
+		EncryptedPassword: json.EncryptedPassword,
+		SSOSecret:         json.SSOSecret,
+		SSOUrl:            json.SSOUrl,
+		Slug:              json.Slug,
+		WebhookUrl:        json.WebhookUrl,
+	}
 
-  team, err := models.FindOrCreateTeam(t)
-  if err != nil {
-    panic(err)
-  }
+	team, err := models.FindOrCreateTeam(t)
+	if err != nil {
+		panic(err)
+	}
 
-  token := GenerateToken(team.Id)
+	token := GenerateToken(team.Id)
 
-  c.JSON(200, gin.H{"token": token})
+	c.JSON(200, gin.H{"token": token})
 }
 
 func TeamsShow(c *gin.Context) {
@@ -46,10 +48,11 @@ func TeamsShow(c *gin.Context) {
 	team := models.FindTeamBySlug(slug)
 
 	c.JSON(200, gin.H{
-		"email": team.Email,
-		"url": team.SSOUrl,
-		"name": team.Slug,
-		"secret": team.SSOSecret,
+		"email":       team.Email,
+		"url":         team.SSOUrl,
+		"name":        team.Slug,
+		"secret":      team.SSOSecret,
+		"webhook_url": team.WebhookUrl,
 	})
 }
 
@@ -77,10 +80,10 @@ func TeamsUpdate(c *gin.Context) {
 	c.Bind(&json)
 
 	t := &models.Team{
-		Email: json.Email,
+		Email:     json.Email,
 		SSOSecret: json.SSOSecret,
-		SSOUrl: json.SSOUrl,
-		Slug: json.Slug,
+		SSOUrl:    json.SSOUrl,
+		Slug:      json.Slug,
 	}
 
 	team, err := models.UpdateTeam(slug, t)
