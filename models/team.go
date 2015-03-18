@@ -109,7 +109,7 @@ func PostToTeamWebhook(roomId string, message *Message) error {
 
 func UpdateTeam(slug string, fields *Team) (*Team, error) {
 	var team Team
-	err := Db.SelectOne(&team, "select * from Teams where slug=$1", slug)
+	err := Db.SelectOne(&team, "select * from teams where slug=$1", slug)
 	if err != nil {
 		panic(err)
 	}

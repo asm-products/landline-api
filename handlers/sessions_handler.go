@@ -24,7 +24,7 @@ func SessionsNew(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	raw := "nonce=" + nonce.Nonce
+	raw := "nonce=" + nonce.Nonce + "&uid=" + c.Request.Form.Get("uid")
 	payload := base64.StdEncoding.EncodeToString([]byte(raw))
 
 	url := team.SSOUrl + "?payload=" + url.QueryEscape(payload) + "&sig=" + models.Sign([]byte(team.SSOSecret), []byte(payload))

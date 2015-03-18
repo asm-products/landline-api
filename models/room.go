@@ -31,17 +31,16 @@ func DeleteRoom(slug, teamId string) error {
 
 func FindOrCreateRoom(fields *Room) (*Room, error) {
 	var room Room
-	err := Db.SelectOne(&room, "select * from Rooms where slug=$1 and team_id=$2", fields.Slug, fields.TeamId)
+	err := Db.SelectOne(&room, "select * from rooms where slug=$1 and team_id=$2", fields.Slug, fields.TeamId)
 	if err == sql.ErrNoRows {
 		err = Db.Insert(fields)
-		return fields, err
 	}
 	return &room, err
 }
 
 func FindRoom(slug, teamId string) (*Room, error) {
 	var room Room
-	err := Db.SelectOne(&room, "select * from Rooms where slug=$1 and team_id=$2", slug, teamId)
+	err := Db.SelectOne(&room, "select * from rooms where slug=$1 and team_id=$2", slug, teamId)
 	return &room, err
 }
 
