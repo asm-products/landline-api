@@ -10,6 +10,7 @@ import (
 
 	"github.com/asm-products/landline-api/utils"
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/russross/blackfriday"
 	"gopkg.in/gorp.v1"
 )
 
@@ -65,8 +66,9 @@ func FindMessages(roomId string) ([]MessageWithUser, error) {
 }
 
 func CreateMessage(fields *Message) error {
-	p := bluemonday.UGCPolicy()
-	fields.Body = p.Sanitize(fields.Body)
+	unsafe := blackfriday.MarkdownCommon([]byte(fields.Body))
+	safe := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
+	fields.Body = string(safe)
 	mentions := utils.ParseUserMentions(fields.Body)
 
 	if len(mentions) > 0 {

@@ -56,6 +56,15 @@
 			"Rev": "fcd0f5074e55df204568c7419509fb59ddcad228"
 		},
 		{
+			"ImportPath": "github.com/russross/blackfriday",
+			"Comment": "v1.2-44-g6928e11",
+			"Rev": "6928e11ecd2bf32f22ba9a46b542257fa76bdc34"
+		},
+		{
+			"ImportPath": "github.com/shurcooL/sanitized_anchor_name",
+			"Rev": "8e87604bec3c645a4eeaee97dfec9f25811ff20d"
+		},
+		{
 			"ImportPath": "github.com/tommy351/gin-cors",
 			"Rev": "f7219a698f21b23d73ae9330d3c5842951ce0b6a"
 		},

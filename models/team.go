@@ -20,15 +20,15 @@ type Team struct {
 	SSOSecret         string    `db:"sso_secret" json:"-"`
 	SSOUrl            string    `db:"sso_url" json:"sso_url"`
 	Slug              string    `db:"slug" json:"slug"`
-	WebhookUrl        *string   `db:"webhook_url" json:"webhook_url"`
+	WebhookURL        *string   `db:"webhook_url" json:"webhook_url"`
 }
 
 func AlertTeamOfMentions(roomId, body string, mentions []string) error {
 	room := FindRoomById(roomId)
 	team := FindTeamById(room.TeamId)
 
-	if team.WebhookUrl != nil {
-		err := utils.PostMentionsToWebhook(*team.WebhookUrl, team.SSOSecret, body, mentions)
+	if team.WebhookURL != nil {
+		err := utils.PostMentionsToWebhook(*team.WebhookURL, team.SSOSecret, body, mentions)
 
 		return err
 	}
@@ -98,8 +98,8 @@ func PostToTeamWebhook(roomId string, message *Message) error {
 		UserId: user.ExternalId,
 	}
 
-	if team.WebhookUrl != nil {
-		err := utils.PostMessageToWebhook(*team.WebhookUrl, team.SSOSecret, m)
+	if team.WebhookURL != nil {
+		err := utils.PostMessageToWebhook(*team.WebhookURL, team.SSOSecret, m)
 
 		return err
 	}

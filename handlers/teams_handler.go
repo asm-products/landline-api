@@ -11,7 +11,7 @@ type TeamJSON struct {
 	SSOSecret         string  `json:"secret" binding:"required"`
 	SSOUrl            string  `json:"url" binding:"required"`
 	Slug              string  `json:"name" binding:"required"`
-	WebhookUrl        *string `json:"webhook_url"`
+	WebhookURL        *string `json:"webhook_url"`
 }
 
 type LoginJSON struct {
@@ -30,7 +30,7 @@ func TeamsCreate(c *gin.Context) {
 		SSOSecret:         json.SSOSecret,
 		SSOUrl:            json.SSOUrl,
 		Slug:              json.Slug,
-		WebhookUrl:        json.WebhookUrl,
+		WebhookURL:        json.WebhookURL,
 	}
 
 	team, err := models.FindOrCreateTeam(t)
@@ -52,7 +52,7 @@ func TeamsShow(c *gin.Context) {
 		"url":         team.SSOUrl,
 		"name":        team.Slug,
 		"secret":      team.SSOSecret,
-		"webhook_url": team.WebhookUrl,
+		"webhook_url": team.WebhookURL,
 	})
 }
 
