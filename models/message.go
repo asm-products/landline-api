@@ -66,9 +66,7 @@ func FindMessages(roomId string) ([]MessageWithUser, error) {
 }
 
 func CreateMessage(fields *Message) error {
-	unsafe := blackfriday.MarkdownCommon([]byte(fields.Body))
-	safe := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
-	fields.Body = string(safe)
+	fields.Body = sanitizeBody(fields.Body)
 	mentions := utils.ParseUserMentions(fields.Body)
 
 	if len(mentions) > 0 {
@@ -164,4 +162,10 @@ func (o *Message) PreInsert(s gorp.SqlExecutor) error {
 func (o *Message) PreUpdate(s gorp.SqlExecutor) error {
 	o.UpdatedAt = time.Now()
 	return nil
+}
+
+func sanitizeBody(body string) string {
+	unsafe := blackfriday.MarkdownCommon([]byte(body))
+	safe := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
+	return string(safe)
 }
