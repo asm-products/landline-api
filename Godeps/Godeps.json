@@ -52,6 +52,10 @@
 			"Rev": "7175accbed18058468c07811f76440d6e8d7cf19"
 		},
 		{
+			"ImportPath": "github.com/microcosm-cc/bluemonday",
+			"Rev": "fcd0f5074e55df204568c7419509fb59ddcad228"
+		},
+		{
 			"ImportPath": "github.com/tommy351/gin-cors",
 			"Rev": "f7219a698f21b23d73ae9330d3c5842951ce0b6a"
 		},
@@ -69,6 +73,10 @@
 			"ImportPath": "github.com/ziutek/mymysql/native",
 			"Comment": "v1.5.3-8-g872ab67",
 			"Rev": "872ab6792fdbbc715def065b0bbd2a7d91715b97"
+		},
+		{
+			"ImportPath": "golang.org/x/net/html",
+			"Rev": "0b492c5a9642fa1365f77ad20bbb259a25572507"
 		},
 		{
 			"ImportPath": "gopkg.in/gorp.v1",

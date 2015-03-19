@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/asm-products/landline-api/utils"
+	"github.com/microcosm-cc/bluemonday"
 	"gopkg.in/gorp.v1"
 )
 
@@ -64,6 +65,8 @@ func FindMessages(roomId string) ([]MessageWithUser, error) {
 }
 
 func CreateMessage(fields *Message) error {
+	p := bluemonday.UGCPolicy()
+	fields.Body = p.Sanitize(fields.Body)
 	mentions := utils.ParseUserMentions(fields.Body)
 
 	if len(mentions) > 0 {
