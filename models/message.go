@@ -147,7 +147,7 @@ func replaceMentionsWithLinks(fields *Message, mentions []string) string {
 			continue
 		}
 
-		link := `<a href="` + u.ProfileUrl + `">@` + u.Username + `</a>`
+		link := `<a href="` + u.ProfileUrl + `" target="_top">@` + u.Username + `</a>`
 		body = strings.Replace(body, `@`+mentions[i], link, 1)
 	}
 
