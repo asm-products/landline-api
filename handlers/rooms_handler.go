@@ -44,16 +44,12 @@ func RoomsIndex(c *gin.Context) {
 }
 
 func RoomsCreate(c *gin.Context) {
-	user, err := GetUserFromContext(c)
-	if err != nil {
-		c.Fail(500, err)
-	}
-
+	teamID := models.FindTeamBySlug(c.Params.ByName("slug")).Id
 	var json RoomJSON
 	c.Bind(&json)
 
 	r := &models.Room{
-		TeamId: user.TeamId,
+		TeamId: teamID,
 		Slug:   json.Slug,
 		Topic:  json.Topic,
 	}
