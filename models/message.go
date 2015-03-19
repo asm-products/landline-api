@@ -3,6 +3,7 @@ package models
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"os"
 	"strings"
@@ -67,6 +68,11 @@ func FindMessages(roomId string) ([]MessageWithUser, error) {
 
 func CreateMessage(fields *Message) error {
 	fields.Body = sanitizeBody(fields.Body)
+
+	if len(fields.Body) == 0 {
+		return errors.New("Message body cannot be blank.")
+	}
+
 	mentions := utils.ParseUserMentions(fields.Body)
 
 	if len(mentions) > 0 {
