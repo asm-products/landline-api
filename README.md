@@ -77,6 +77,8 @@ Session.create(function(sess){
     }
 });
 
+```
+
 #### boundLog
 
 the `boundLog` function does exactly the same thing as `console.log`, but it is already bound to the console object, so you can easily pass it as a callback.
