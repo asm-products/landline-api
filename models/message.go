@@ -34,6 +34,12 @@ type MessageWithUser struct {
 	ProfileUrl   string    `db:"profile_url" json:"profile_url"`
 }
 
+type MessageHeart struct {
+	UserId      string `db:"user_id" json:"user_id"`
+	MessageId   string `db:"message_id" json:"message_id"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+}
+
 func NewMessageWithUser(message *Message, user *User) *MessageWithUser {
 	return &MessageWithUser{
 		Id:           message.Id,
