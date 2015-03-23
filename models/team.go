@@ -94,7 +94,7 @@ func PostToTeamWebhook(roomId string, message *Message) error {
 
 	m := utils.Message{
 		Body:   message.Body,
-		RoomId: roomId,
+		Slug:   room.Slug,
 		UserId: user.ExternalId,
 	}
 

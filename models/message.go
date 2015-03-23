@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"html"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/asm-products/landline-api/utils"
-	"github.com/microcosm-cc/bluemonday"
-	"github.com/russross/blackfriday"
 	"gopkg.in/gorp.v1"
 )
 
@@ -171,7 +170,8 @@ func (o *Message) PreUpdate(s gorp.SqlExecutor) error {
 }
 
 func sanitizeBody(body string) string {
-	unsafe := blackfriday.MarkdownCommon([]byte(body))
-	safe := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
-	return string(safe)
+	// unsafe := blackfriday.MarkdownCommon([]byte(body))
+	// safe := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
+	// safe := bluemonday.UGCPolicy().SanitizeBytes([]byte(body))
+	return html.EscapeString(body)
 }
