@@ -61,3 +61,31 @@ func SendMessage(user *models.User, roomSlug, body string) (*models.MessageWithU
 	Socketio_Server.BroadcastTo(room.Id, "message", mu, roomSlug)
 	return mu, err
 }
+
+func MessagesHeart(c *gin.Context) {
+	user, err := GetUserFromContext(c)
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	h, err := models.CreateMessageHeart(user.Id, c.Params.ByName("message"))
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	c.JSON(200, gin.H{"heart": h})
+}
+
+func MessagesUnheart(c *gin.Context) {
+	user, err := GetUserFromContext(c)
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	err = models.RemoveMessageHeart(user.Id, c.Params.ByName("message"))
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	c.JSON(200, gin.H{})
+}

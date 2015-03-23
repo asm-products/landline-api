@@ -53,14 +53,19 @@ type MessageHeart struct {
 }
 
 func CreateMessageHeart(userId, messageId string) (*MessageHeart, error) {
-	h := &MessageHeart{userId, messageId}
+	h := &MessageHeart{UserId: userId, MessageId: messageId}
 
 	err := Db.Insert(h)
 	if err != nil {
 		return nil, err
 	}
 
-	return h
+	return h, nil
+}
+
+func RemoveMessageHeart(userId, messageId string) error {
+	_, err := Db.Delete(&MessageHeart{UserId: userId, MessageId: messageId})
+	return err
 }
 
 func (m *MessageHeart) PreInsert(s gorp.SqlExecutor) error {
