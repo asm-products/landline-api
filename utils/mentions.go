@@ -4,12 +4,30 @@ import (
 	"regexp"
 )
 
-var MentionPattern *regexp.Regexp = regexp.MustCompile(
+var roomMentionPattern = regexp.MustCompile(
+	`(?:^|\W)#((?i)[a-z0-9][a-z0-9-]*)`,
+)
+
+var userMentionPattern = regexp.MustCompile(
 	`(?:^|\W)@((?i)[a-z0-9][a-z0-9-]*)`,
 )
 
+// ParseRoomMentions finds strings prefixed by `#` and returns
+// an array of the strings without the prefix
+func ParseRoomMentions(body string) []string {
+	mentions := roomMentionPattern.FindAllStringSubmatch(body, -1)
+
+	var room = make([]string, len(mentions))
+	for i, s := range mentions {
+		room[i] = s[1]
+	}
+	return room
+}
+
+// ParseUserMentions finds strings prefixed by `@` and returns
+// an array of the strings without the prefix
 func ParseUserMentions(body string) []string {
-	mentions := MentionPattern.FindAllStringSubmatch(body, -1)
+	mentions := userMentionPattern.FindAllStringSubmatch(body, -1)
 
 	var usernames = make([]string, len(mentions))
 	for i, s := range mentions {
