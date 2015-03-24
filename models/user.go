@@ -27,7 +27,11 @@ type User struct {
 
 func FindOrCreateUserByExternalId(fields *User) (*User, error) {
 	var user User
-	err := Db.SelectOne(&user, `select * from users where external_id = $1 limit 1`, fields.ExternalId)
+	err := Db.SelectOne(
+		&user,
+		`select * from users where external_id = $1 limit 1`,
+		fields.ExternalId,
+	)
 	if err == sql.ErrNoRows {
 		err = Db.Insert(fields)
 		return fields, err

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/asm-products/landline-api/models"
 	"github.com/gin-gonic/gin"
 )
@@ -60,6 +62,7 @@ func SendMessage(user *models.User, roomSlug, body string) (*models.MessageWithU
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(m)
 	mu := models.NewMessageWithUser(m, user)
 	Socketio_Server.BroadcastTo(room.Id, "message", mu, roomSlug)
 	return mu, err

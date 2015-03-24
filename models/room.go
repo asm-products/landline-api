@@ -73,7 +73,12 @@ func Subscribers(roomId string) (*[]string, error) {
 
 func UpdateRoom(slug, teamId string, fields *Room) (*Room, error) {
 	var room Room
-	err := Db.SelectOne(&room, "select * from rooms where slug=$1 and team_id=$2", slug, teamId)
+	err := Db.SelectOne(
+		&room,
+		"select * from rooms where slug=$1 and team_id=$2",
+		slug,
+		teamId,
+	)
 	if err != nil {
 		panic(err)
 	}

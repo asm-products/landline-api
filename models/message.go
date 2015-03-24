@@ -89,11 +89,8 @@ func CreateMessage(fields *Message) error {
 		return err
 	}
 
-	err = registerUnread(fields.RoomId)
-
-	if err != nil {
-		return err
-	}
+	// ignore Readraptor errors
+	_ = registerUnread(fields.RoomId)
 
 	PostToTeamWebhook(fields.RoomId, fields)
 
