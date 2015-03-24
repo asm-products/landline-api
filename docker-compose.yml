@@ -1,0 +1,11 @@
+web:
+  build: .
+  links:
+   - db
+  ports:
+   - "3000:3000"
+  environment:
+    - DATABASE_URL=postgres://postgres@db/postgres?sslmode=disable
+
+db:
+  image: postgres
