@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"encoding/json"
 
 	"gopkg.in/gorp.v1"
 )
@@ -23,6 +24,15 @@ type User struct {
 	ProfileUrl string `db:"profile_url" json:"profile_url"`
 	RealName   string `db:"real_name" json:"real_name"`
 	Username   string `db:"username" json:"username"`
+}
+
+type Article struct {
+    UnreadRoomResponse `json:"article"`
+}
+
+type UnreadRoomResponse struct {
+    UserId string   `json:"key"`
+    Rooms  []string `json:"pending"`
 }
 
 func FindOrCreateUserByExternalId(fields *User) (*User, error) {
@@ -81,7 +91,7 @@ func FindRecentlyOnlineUsers(teamId string) ([]User, error) {
 	return users, err
 }
 
-func UnreadRooms(userId string) ([]byte, error) {
+func UnreadRooms(userId string) ([]Article, error) {
 	req, err := http.NewRequest(
 		"GET",
 		os.Getenv("RR_URL")+"/readers/"+userId,
@@ -89,7 +99,7 @@ func UnreadRooms(userId string) ([]byte, error) {
 	)
 
 	req.SetBasicAuth(os.Getenv("RR_PRIVATE_KEY"), "")
-
+	
 	client := &http.Client{}
 
 	res, err := client.Do(req)
@@ -99,8 +109,12 @@ func UnreadRooms(userId string) ([]byte, error) {
 	}
 
 	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
 
-	return ioutil.ReadAll(res.Body)
+	article := make([]Article,0)
+	json.Unmarshal(body, &article)
+
+	return article, err
 }
 
 func (o *User) PreInsert(s gorp.SqlExecutor) error {
