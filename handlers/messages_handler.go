@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/asm-products/landline-api/models"
 	"github.com/gin-gonic/gin"
@@ -22,7 +23,19 @@ func MessagesIndex(c *gin.Context) {
 		c.Fail(500, err)
 	}
 
-	messages, err := models.FindMessages(room.Id)
+	var messages []models.MessageWithUser
+	timestamp := c.Request.URL.Query().Get("t")
+	if timestamp != "" {
+		fmt.Println("timestamp", timestamp)
+		time, err := time.Parse(time.RFC3339, timestamp)
+		if err != nil {
+			c.Fail(500, err)
+		}
+		messages, err = models.FindMessagesBeforeTimestamp(room.Id, time)
+	} else {
+		messages, err = models.FindMessages(room.Id)
+	}
+
 	if err != nil {
 		c.Fail(500, err)
 	}

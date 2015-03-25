@@ -60,20 +60,29 @@ func FindMessages(roomId string) ([]MessageWithUser, error) {
 		`SELECT messages.id, messages.created_at, body, username, avatar_url,
 		last_online_at, profile_url
 		FROM messages INNER JOIN users ON (users.id = messages.user_id)
-		WHERE messages.room_id = $1 ORDER BY messages.created_at ASC
+		WHERE messages.room_id = $1 ORDER BY messages.created_at DESC
 		LIMIT 50`,
 		roomId,
 	)
 
-	for i := range messages {
-		m := &Message{
-			Body:   messages[i].Body,
-			RoomId: roomId,
-		}
-		messages[i].HTMLBody = ParseMessage(m)
-	}
+	return addHTMLBody(roomId, messages), err
+}
 
-	return messages, err
+func FindMessagesBeforeTimestamp(roomId string, timestamp time.Time) ([]MessageWithUser, error) {
+	var messages []MessageWithUser
+	_, err := Db.Select(
+		&messages,
+		`SELECT messages.id, messages.created_at, body, username, avatar_url,
+		last_online_at, profile_url
+		FROM messages INNER JOIN users ON (users.id = messages.user_id)
+		WHERE messages.room_id = $1 AND messages.created_at < $2
+		ORDER BY messages.created_at DESC
+		LIMIT 50`,
+		roomId,
+		timestamp,
+	)
+
+	return addHTMLBody(roomId, messages), err
 }
 
 func CreateMessage(fields *Message) error {
@@ -115,6 +124,17 @@ func ParseMessage(message *Message) string {
 	}
 
 	return body
+}
+
+func addHTMLBody(roomId string, messages []MessageWithUser) []MessageWithUser {
+	for i := range messages {
+		m := &Message{
+			Body:   messages[i].Body,
+			RoomId: roomId,
+		}
+		messages[i].HTMLBody = ParseMessage(m)
+	}
+	return messages
 }
 
 func buildReadraptorRequestBody(roomId string) (*bytes.Reader, error) {
