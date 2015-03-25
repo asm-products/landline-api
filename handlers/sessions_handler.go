@@ -65,9 +65,9 @@ func SessionsLoginSSO(c *gin.Context) {
 		panic(err)
 	}
 
-	token := GenerateToken(u.Id)
+	token, expiration := GenerateToken(u.Id)
 
-	c.JSON(200, gin.H{"token": token})
+	c.JSON(200, gin.H{"token": token, "expiration": expiration})
 }
 
 func ExtractSSORequest(r *http.Request) (*models.SSORequest, error) {
@@ -101,13 +101,14 @@ func ExtractSSORequest(r *http.Request) (*models.SSORequest, error) {
 	return sso, nil
 }
 
-func GenerateToken(id string) string {
+func GenerateToken(id string) (string, int64) {
 	token := jwt.New(jwt.SigningMethodHS256)
+	expiration := time.Now().Add(time.Hour * 72).Unix()
 	token.Claims["id"] = id
-	token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	token.Claims["exp"] = expiration
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
 	if err != nil {
 		panic(err)
 	}
-	return tokenString
+	return tokenString, expiration
 }
