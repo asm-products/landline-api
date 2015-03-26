@@ -81,6 +81,10 @@ func FindRecentlyOnlineUsers(teamId string) ([]User, error) {
 	return users, err
 }
 
+func TouchUser(userId string) {
+	Db.Exec("update users set last_online_at=$2 where id=$1", userId, time.Now())
+}
+
 func UnreadRooms(userId string) ([]byte, error) {
 	req, err := http.NewRequest(
 		"GET",

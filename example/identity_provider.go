@@ -41,7 +41,7 @@ func main() {
 
 		raw := v.Encode()
 		payload := base64.StdEncoding.EncodeToString([]byte(raw))
-		url := "http://localhost:3000/sessions/sso?payload=" + url.QueryEscape(payload) + "&sig=" + Sign([]byte(secret), []byte(payload))
+		url := "http://localhost:8888/sessions/sso?payload=" + url.QueryEscape(payload) + "&sig=" + Sign([]byte(secret), []byte(payload))
 
 		c.Redirect(302, url)
 	})

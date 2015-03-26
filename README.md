@@ -17,7 +17,7 @@ The easiest way to run the API locally is with [Compose](https://docs.docker.com
     docker-compose run web go run db/test-data.go
     docker-compose up
 
-If you want to run it outside Docker, make sure postgres and go version 1.4 are installed, then run:    
+If you want to run it outside Docker, make sure postgres and go version 1.4 are installed, then run    
 
     go get bitbucket.org/liamstask/goose/cmd/goose
     go get github.com/codegangsta/gin

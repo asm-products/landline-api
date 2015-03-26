@@ -22,15 +22,19 @@ func Auth(secret string) gin.HandlerFunc {
 		}
 
 		c.Set("user", user)
+
+		c.Next()
+
+		models.TouchUser(user.Id)
 	}
 }
 
 func getUserFromJwt(webtoken, secret string) (*models.User, error) {
-	token, err := jwt.Parse(webtoken, func(token *jwt.Token)(interface{}, error){
+	token, err := jwt.Parse(webtoken, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
 	})
 
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
