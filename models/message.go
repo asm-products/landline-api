@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"html"
 	"net/http"
 	"os"
 	"strings"
@@ -86,8 +85,6 @@ func FindMessagesBeforeTimestamp(roomId string, timestamp time.Time) ([]MessageW
 }
 
 func CreateMessage(fields *Message) error {
-	fields.Body = sanitizeBody(fields.Body)
-
 	if len(fields.Body) == 0 {
 		return errors.New("Message body cannot be blank.")
 	}
@@ -100,8 +97,6 @@ func CreateMessage(fields *Message) error {
 
 	// ignore Readraptor errors
 	_ = registerUnread(fields.RoomId)
-
-	PostToTeamWebhook(fields.RoomId, fields)
 
 	return nil
 }
@@ -225,8 +220,4 @@ func (o *Message) PreInsert(s gorp.SqlExecutor) error {
 func (o *Message) PreUpdate(s gorp.SqlExecutor) error {
 	o.UpdatedAt = time.Now()
 	return nil
-}
-
-func sanitizeBody(body string) string {
-	return html.EscapeString(body)
 }

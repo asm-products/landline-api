@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/asm-products/landline-api/models"
 	"github.com/gin-gonic/gin"
 	"github.com/googollee/go-socket.io"
-	"os"
 )
 
-var Socketio_Server *socketio.Server
+var SocketioServer *socketio.Server
 
 type sioMessage struct {
 	Body string
@@ -18,7 +19,7 @@ type sioMessage struct {
 type socketIOResponse struct {
 	Success bool
 	Message string
-	Result interface{}
+	Result  interface{}
 }
 
 func newSuccessResponse(result interface{}) socketIOResponse {
@@ -35,14 +36,14 @@ func newAuthErrorResponse() socketIOResponse {
 
 func SetupSocketIOServer() {
 	var err error
-	Socketio_Server, err = socketio.NewServer(nil)
+	SocketioServer, err = socketio.NewServer(nil)
 	if err != nil {
 		panic(err)
 	}
 }
 
 func SocketHandler(c *gin.Context) {
-	Socketio_Server.On("connection", func(so socketio.Socket) {
+	SocketioServer.On("connection", func(so socketio.Socket) {
 		// Since this function is called for every connection,
 		// so the user variable is caught in this closure, and is only accessible
 		// to this connection.
@@ -98,7 +99,7 @@ func SocketHandler(c *gin.Context) {
 			if user == nil {
 				return newAuthErrorResponse()
 			}
-			msg, err := SendMessage(user, m.Room, m.Body)
+			msg, err := SendMessage(user, m.Room, m.Body, "")
 			if err != nil {
 				return newErrorResponse(err)
 			}
@@ -110,11 +111,11 @@ func SocketHandler(c *gin.Context) {
 		})
 	})
 
-	Socketio_Server.On("error", func(so socketio.Socket, err error) {
+	SocketioServer.On("error", func(so socketio.Socket, err error) {
 		fmt.Printf("[ WebSocket ] Error : %v", err.Error())
 	})
 
-	Socketio_Server.ServeHTTP(c.Writer, c.Request)
+	SocketioServer.ServeHTTP(c.Writer, c.Request)
 }
 
 // A helper function to join all rooms the user is a member of.
