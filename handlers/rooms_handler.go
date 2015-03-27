@@ -21,13 +21,7 @@ func RoomsIndex(c *gin.Context) {
 		c.Fail(500, err)
 	}
 
-	var rooms []models.Room
-	_, err = models.Db.Select(
-		&rooms,
-		`select * from rooms where team_id = $1`,
-		user.TeamId,
-	)
-
+	rooms, err := models.FindRooms(user.TeamId)
 	if err != nil {
 		c.Fail(500, err)
 	}
@@ -37,9 +31,15 @@ func RoomsIndex(c *gin.Context) {
 		c.Fail(500, err)
 	}
 
+	unread, err := models.UnreadRooms(user.Id)
+	if err != nil {
+		c.Fail(500, err)
+	}
+
 	c.JSON(200, gin.H{
-		"rooms":       rooms,
-		"memberships": memberships,
+		"rooms":        rooms,
+		"memberships":  memberships,
+		"unread_rooms": unread,
 	})
 }
 

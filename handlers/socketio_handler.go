@@ -130,7 +130,8 @@ func joinRoomMemberships(userId string, so socketio.Socket) error {
 	return err
 }
 
-// Browsers complain when the allowed origin is *, and there are cookies being set, which socket.io requires.
+// Browsers complain when the allowed origin is *, and there are cookies being
+// set, which socket.io requires.
 func SocketIOCors(c *gin.Context) {
 	origin := c.Request.Header.Get("Origin")
 	if origin != "" {

@@ -44,6 +44,17 @@ func FindRoom(slug, teamId string) (*Room, error) {
 	return &room, err
 }
 
+func FindRooms(teamId string) ([]Room, error) {
+	var rooms []Room
+	_, err := Db.Select(
+		&rooms,
+		`select * from rooms where team_id = $1`,
+		teamId,
+	)
+
+	return rooms, err
+}
+
 func FindRoomById(id string) *Room {
 	var room Room
 	err := Db.SelectOne(&room, "select * from rooms where id = $1", id)
