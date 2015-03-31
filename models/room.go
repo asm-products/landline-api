@@ -2,6 +2,9 @@ package models
 
 import (
 	"database/sql"
+	"io/ioutil"
+	"net/http"
+	"os"
 	"time"
 
 	"gopkg.in/gorp.v1"
@@ -80,6 +83,29 @@ func Subscribers(roomId string) (*[]string, error) {
 	}
 
 	return &subscribers, err
+}
+
+func UnreadRooms(userId string) ([]byte, error) {
+	req, err := http.NewRequest(
+		"GET",
+		os.Getenv("RR_URL")+"/readers/"+userId,
+		nil,
+	)
+
+	req.Header.Set("Accept", "application/json")
+	req.SetBasicAuth(os.Getenv("RR_PRIVATE_KEY"), "")
+
+	client := &http.Client{}
+
+	res, err := client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+
+	return ioutil.ReadAll(res.Body)
 }
 
 func UpdateRoom(slug, teamId string, fields *Room) (*Room, error) {

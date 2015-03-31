@@ -12,14 +12,14 @@ import (
 var SocketioServer *socketio.Server
 
 type sioMessage struct {
-	Body string
-	Room string
+	Body string `json:"body"`
+	Room string `json:"room"`
 }
 
 type socketIOResponse struct {
-	Success bool
-	Message string
-	Result  interface{}
+	Success bool        `json:"success"`
+	Message string      `json:"message"`
+	Result  interface{} `json:"result"`
 }
 
 func newSuccessResponse(result interface{}) socketIOResponse {

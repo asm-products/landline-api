@@ -2,9 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"io/ioutil"
-	"net/http"
-	"os"
 	"time"
 
 	"gopkg.in/gorp.v1"
@@ -83,28 +80,6 @@ func FindRecentlyOnlineUsers(teamId string) ([]User, error) {
 
 func TouchUser(userId string) {
 	Db.Exec("update users set last_online_at=$2 where id=$1", userId, time.Now())
-}
-
-func UnreadRooms(userId string) ([]byte, error) {
-	req, err := http.NewRequest(
-		"GET",
-		os.Getenv("RR_URL")+"/readers/"+userId,
-		nil,
-	)
-
-	req.SetBasicAuth(os.Getenv("RR_PRIVATE_KEY"), "")
-
-	client := &http.Client{}
-
-	res, err := client.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer res.Body.Close()
-
-	return ioutil.ReadAll(res.Body)
 }
 
 func (o *User) PreInsert(s gorp.SqlExecutor) error {

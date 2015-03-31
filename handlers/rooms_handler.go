@@ -98,7 +98,6 @@ func RoomsUnread(c *gin.Context) {
 	}
 
 	unread, err := models.UnreadRooms(user.Id)
-
 	if err != nil {
 		c.Fail(500, err)
 	}
