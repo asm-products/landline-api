@@ -2,7 +2,8 @@ package models
 
 import (
 	"database/sql"
-	"io/ioutil"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -85,7 +86,7 @@ func Subscribers(roomId string) (*[]string, error) {
 	return &subscribers, err
 }
 
-func UnreadRooms(userId string) ([]byte, error) {
+func UnreadRooms(userId string) (interface{}, error) {
 	req, err := http.NewRequest(
 		"GET",
 		os.Getenv("RR_URL")+"/readers/"+userId,
@@ -103,9 +104,13 @@ func UnreadRooms(userId string) ([]byte, error) {
 		return nil, err
 	}
 
-	defer res.Body.Close()
+	decoder := json.NewDecoder(res.Body)
+	var body interface{}
+	err = decoder.Decode(&body)
 
-	return ioutil.ReadAll(res.Body)
+	fmt.Println(body)
+
+	return body, err
 }
 
 func UpdateRoom(slug, teamId string, fields *Room) (*Room, error) {

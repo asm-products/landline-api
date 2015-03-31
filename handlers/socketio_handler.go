@@ -54,10 +54,11 @@ func SocketHandler(c *gin.Context) {
 		// the client should emit an "auth" event, with their JWT as the message.
 		so.On("auth", func(token string) socketIOResponse {
 			res, err := getUserFromJwt(token, os.Getenv("SECRET"))
-			user = res
 			if err != nil {
 				return newErrorResponse(err)
 			}
+
+			user = res
 			joinRoomMemberships(user.Id, so)
 			return newSuccessResponse(nil)
 		})

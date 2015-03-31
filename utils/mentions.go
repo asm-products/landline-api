@@ -17,11 +17,11 @@ var userMentionPattern = regexp.MustCompile(
 func ParseRoomMentions(body string) []string {
 	mentions := roomMentionPattern.FindAllStringSubmatch(body, -1)
 
-	var room = make([]string, len(mentions))
+	var rooms = make([]string, len(mentions))
 	for i, s := range mentions {
-		room[i] = s[1]
+		rooms[i] = s[1]
 	}
-	return room
+	return rooms
 }
 
 // ParseUserMentions finds strings prefixed by `@` and returns

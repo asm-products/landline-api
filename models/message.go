@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/asm-products/landline-api/utils"
+	"github.com/microcosm-cc/bluemonday"
 	"gopkg.in/gorp.v1"
 )
 
@@ -101,24 +103,31 @@ func CreateMessage(fields *Message) error {
 	return nil
 }
 
-// ParseMessage parses the outgoing message according to the following rules:
-// - @username
-// - #room
+// ParseMessage parses the outgoing message by catching user and room mentions,
+// URLs, and then passing the body through Blackfriday for additional parsing
+// and finally Bluemonday for sanitization.
 func ParseMessage(message *Message) string {
 	body := message.Body
-	userMentions := utils.ParseUserMentions(body)
-
-	if len(userMentions) > 0 {
-		body = replaceUserMentionsWithLinks(message, userMentions)
-	}
 
 	roomMentions := utils.ParseRoomMentions(body)
+	urls := utils.ParseURLs(body)
+	userMentions := utils.ParseUserMentions(body)
 
 	if len(roomMentions) > 0 {
 		body = replaceRoomMentionsWithLinks(message, roomMentions)
 	}
 
-	return body
+	if len(urls) > 0 {
+		body = replaceUrlsWithLinks(message, urls)
+	}
+
+	if len(userMentions) > 0 {
+		body = replaceUserMentionsWithLinks(message, userMentions)
+	}
+
+	safe := bluemonday.UGCPolicy().SanitizeBytes([]byte(body))
+
+	return string(safe)
 }
 
 func addHTMLBody(roomId string, messages []MessageWithUser) []MessageWithUser {
@@ -127,6 +136,7 @@ func addHTMLBody(roomId string, messages []MessageWithUser) []MessageWithUser {
 			Body:   messages[i].Body,
 			RoomId: roomId,
 		}
+
 		messages[i].HTMLBody = ParseMessage(m)
 	}
 	return messages
@@ -185,9 +195,29 @@ func replaceRoomMentionsWithLinks(message *Message, mentions []string) string {
 			continue
 		}
 
-		link := `<a href="#/rooms/` + r.Slug +
-			`" target="_top" title="` + r.Topic + `">#` + r.Slug + `</a>`
+		link := fmt.Sprintf(
+			`<a href="#/rooms/%v" target="_top" title="%v">#%v</a>`,
+			r.Slug,
+			r.Topic,
+			r.Slug,
+		)
 		body = strings.Replace(body, `#`+mentions[i], link, 1)
+	}
+
+	return body
+}
+
+func replaceUrlsWithLinks(message *Message, urls []string) string {
+	body := message.Body
+
+	for i := range urls {
+		link := fmt.Sprintf(
+			`<a href="%v" target="_top">%v</a>`,
+			urls[i],
+			urls[i],
+		)
+
+		body = strings.Replace(body, urls[i], link, 1)
 	}
 
 	return body
@@ -203,7 +233,12 @@ func replaceUserMentionsWithLinks(message *Message, mentions []string) string {
 			continue
 		}
 
-		link := `<a href="` + u.ProfileUrl + `" target="_top">@` + u.Username + `</a>`
+		link := fmt.Sprintf(
+			`<a href="%v" target="_top">@%v</a>`,
+			u.ProfileUrl,
+			u.Username,
+		)
+
 		body = strings.Replace(body, `@`+mentions[i], link, 1)
 	}
 
