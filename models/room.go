@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -107,8 +106,6 @@ func UnreadRooms(userId string) (interface{}, error) {
 	decoder := json.NewDecoder(res.Body)
 	var body interface{}
 	err = decoder.Decode(&body)
-
-	fmt.Println(body)
 
 	return body, err
 }

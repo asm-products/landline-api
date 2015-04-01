@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"html"
 	"time"
 
@@ -27,7 +26,6 @@ func MessagesIndex(c *gin.Context) {
 	var messages []models.MessageWithUser
 	timestamp := c.Request.URL.Query().Get("t")
 	if timestamp != "" {
-		fmt.Println("timestamp", timestamp)
 		time, err := time.Parse(time.RFC3339, timestamp)
 		if err != nil {
 			c.Fail(500, err)
