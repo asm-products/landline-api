@@ -81,7 +81,15 @@ func RoomsShow(c *gin.Context) {
 		c.Fail(500, err)
 	}
 
-	room, err := models.FindRoom(c.Params.ByName("room"), user.TeamId)
+	roomSlugAndTopic := c.Params.ByName("room")
+
+	r := &models.Room{
+		TeamId: user.TeamId,
+		Slug:   roomSlugAndTopic,
+		Topic:  roomSlugAndTopic,
+	}
+
+	room, err := models.FindOrCreateRoom(r)
 	if err != nil {
 		c.Fail(500, err)
 	}
