@@ -40,7 +40,7 @@ func TeamsCreate(c *gin.Context) {
 
 	token, expiration := GenerateToken(team.Id)
 
-	c.JSON(200, gin.H{"token": token, "expiration": expiration})
+	c.JSON(201, gin.H{"token": token, "expiration": expiration})
 }
 
 func TeamsShow(c *gin.Context) {
@@ -80,10 +80,11 @@ func TeamsUpdate(c *gin.Context) {
 	c.Bind(&json)
 
 	t := &models.Team{
-		Email:     json.Email,
-		SSOSecret: json.SSOSecret,
-		SSOUrl:    json.SSOUrl,
-		Slug:      json.Slug,
+		Email:      json.Email,
+		SSOSecret:  json.SSOSecret,
+		SSOUrl:     json.SSOUrl,
+		Slug:       json.Slug,
+		WebhookURL: json.WebhookURL,
 	}
 
 	team, err := models.UpdateTeam(slug, t)

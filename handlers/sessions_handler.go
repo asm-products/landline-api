@@ -27,7 +27,6 @@ func SessionsNew(c *gin.Context) {
 
 	raw := "nonce=" + nonce.Nonce + "&" + c.Request.URL.RawQuery
 	payload := base64.StdEncoding.EncodeToString([]byte(raw))
-
 	url := team.SSOUrl + "?payload=" + url.QueryEscape(payload) + "&sig=" + models.Sign([]byte(team.SSOSecret), []byte(payload))
 
 	c.Redirect(302, url)
