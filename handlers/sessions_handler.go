@@ -24,9 +24,9 @@ func SessionsNew(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	raw := "nonce=" + nonce.Nonce + "&uid=" + c.Request.Form.Get("uid")
-	payload := base64.StdEncoding.EncodeToString([]byte(raw))
 
+	raw := "nonce=" + nonce.Nonce + "&" + c.Request.URL.RawQuery
+	payload := base64.StdEncoding.EncodeToString([]byte(raw))
 	url := team.SSOUrl + "?payload=" + url.QueryEscape(payload) + "&sig=" + models.Sign([]byte(team.SSOSecret), []byte(payload))
 
 	c.Redirect(302, url)
@@ -65,9 +65,9 @@ func SessionsLoginSSO(c *gin.Context) {
 		panic(err)
 	}
 
-	token := GenerateToken(u.Id)
+	token, expiration := GenerateToken(u.Id)
 
-	c.JSON(200, gin.H{"token": token})
+	c.JSON(200, gin.H{"token": token, "expiration": expiration})
 }
 
 func ExtractSSORequest(r *http.Request) (*models.SSORequest, error) {
@@ -101,13 +101,14 @@ func ExtractSSORequest(r *http.Request) (*models.SSORequest, error) {
 	return sso, nil
 }
 
-func GenerateToken(id string) string {
+func GenerateToken(id string) (string, int64) {
 	token := jwt.New(jwt.SigningMethodHS256)
+	expiration := time.Now().Add(time.Hour * 72).Unix()
 	token.Claims["id"] = id
-	token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	token.Claims["exp"] = expiration
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
 	if err != nil {
 		panic(err)
 	}
-	return tokenString
+	return tokenString, expiration
 }

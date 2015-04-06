@@ -1,0 +1,2 @@
+docker-compose run db createdb -h db -U postgres ll_development
+docker-compose run db createdb -h db -U postgres ll_test

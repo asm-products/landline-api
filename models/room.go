@@ -2,6 +2,9 @@ package models
 
 import (
 	"database/sql"
+	"encoding/json"
+	"net/http"
+	"os"
 	"time"
 
 	"gopkg.in/gorp.v1"
@@ -44,6 +47,17 @@ func FindRoom(slug, teamId string) (*Room, error) {
 	return &room, err
 }
 
+func FindRooms(teamId string) ([]Room, error) {
+	var rooms []Room
+	_, err := Db.Select(
+		&rooms,
+		`select * from rooms where team_id = $1`,
+		teamId,
+	)
+
+	return rooms, err
+}
+
 func FindRoomById(id string) *Room {
 	var room Room
 	err := Db.SelectOne(&room, "select * from rooms where id = $1", id)
@@ -71,9 +85,39 @@ func Subscribers(roomId string) (*[]string, error) {
 	return &subscribers, err
 }
 
+func UnreadRooms(userId string) (interface{}, error) {
+	req, err := http.NewRequest(
+		"GET",
+		os.Getenv("RR_URL")+"/readers/"+userId,
+		nil,
+	)
+
+	req.Header.Set("Accept", "application/json")
+	req.SetBasicAuth(os.Getenv("RR_PRIVATE_KEY"), "")
+
+	client := &http.Client{}
+
+	res, err := client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	decoder := json.NewDecoder(res.Body)
+	var body interface{}
+	err = decoder.Decode(&body)
+
+	return body, err
+}
+
 func UpdateRoom(slug, teamId string, fields *Room) (*Room, error) {
 	var room Room
-	err := Db.SelectOne(&room, "select * from rooms where slug=$1 and team_id=$2", slug, teamId)
+	err := Db.SelectOne(
+		&room,
+		"select * from rooms where slug=$1 and team_id=$2",
+		slug,
+		teamId,
+	)
 	if err != nil {
 		panic(err)
 	}

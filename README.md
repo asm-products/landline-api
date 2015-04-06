@@ -9,13 +9,23 @@ This is a product being built by the Assembly community. You can help push this 
 
 ## Development
 
-    $ go get bitbucket.org/liamstask/goose/cmd/goose
-    $ go get github.com/codegangsta/gin
-    $ godep restore
-    $ ./db/setup
-    $ ./db/migrate
-    $ forego run go run db/test-data.go
-    $ gin
+The easiest way to run the API locally is with [Compose](https://docs.docker.com/compose/). First make sure Docker and Compose are installed. Then run:
+
+    ./dc-setup
+    ./db/dc-migrate
+    ./db/dc-test-data
+    docker-compose run web go run db/test-data.go
+    docker-compose up
+
+If you want to run it outside Docker, make sure postgres and go version 1.4 are installed, then run    
+
+    go get bitbucket.org/liamstask/goose/cmd/goose
+    go get github.com/codegangsta/gin
+    godep restore
+    ./db/setup
+    ./db/migrate
+    forego run go run db/test-data.go
+    gin
 
 ### Authentication flow
 

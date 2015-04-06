@@ -13,7 +13,7 @@ type MentionWebhookBody struct {
 }
 
 type Message struct {
-	RoomId string `json:"room_id"`
+	Slug   string `json:"slug"`
 	UserId string `json:"user_id"`
 	Body   string `json:"body"`
 }
@@ -54,7 +54,6 @@ func PostMessageToWebhook(url, secret string, message Message) error {
 	}
 
 	r, err := json.Marshal(requestBody)
-
 	if err != nil {
 		return err
 	}
@@ -64,6 +63,7 @@ func PostMessageToWebhook(url, secret string, message Message) error {
 		url,
 		bytes.NewReader(r),
 	)
+	req.Header.Set("Content-Type", "application/json")
 
 	req.SetBasicAuth(secret, "")
 

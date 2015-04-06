@@ -2,9 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"io/ioutil"
-	"net/http"
-	"os"
 	"time"
 
 	"gopkg.in/gorp.v1"
@@ -27,7 +24,11 @@ type User struct {
 
 func FindOrCreateUserByExternalId(fields *User) (*User, error) {
 	var user User
-	err := Db.SelectOne(&user, `select * from users where external_id = $1 limit 1`, fields.ExternalId)
+	err := Db.SelectOne(
+		&user,
+		`select * from users where external_id = $1 limit 1`,
+		fields.ExternalId,
+	)
 	if err == sql.ErrNoRows {
 		err = Db.Insert(fields)
 		return fields, err
@@ -77,26 +78,8 @@ func FindRecentlyOnlineUsers(teamId string) ([]User, error) {
 	return users, err
 }
 
-func UnreadRooms(userId string) ([]byte, error) {
-	req, err := http.NewRequest(
-		"GET",
-		os.Getenv("RR_URL")+"/readers/"+userId,
-		nil,
-	)
-
-	req.SetBasicAuth(os.Getenv("RR_PRIVATE_KEY"), "")
-
-	client := &http.Client{}
-
-	res, err := client.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-
-	defer res.Body.Close()
-
-	return ioutil.ReadAll(res.Body)
+func TouchUser(userId string) {
+	Db.Exec("update users set last_online_at=$2 where id=$1", userId, time.Now())
 }
 
 func (o *User) PreInsert(s gorp.SqlExecutor) error {
