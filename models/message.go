@@ -12,6 +12,7 @@ import (
 
 	"github.com/asm-products/landline-api/utils"
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/russross/blackfriday"
 	"gopkg.in/gorp.v1"
 )
 
@@ -125,7 +126,8 @@ func ParseMessage(message *Message) string {
 		body = replaceUserMentionsWithLinks(message, userMentions)
 	}
 
-	safe := bluemonday.UGCPolicy().SanitizeBytes([]byte(body))
+	unsafe := blackfriday.MarkdownCommon([]byte(body))
+	safe := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
 
 	return string(safe)
 }

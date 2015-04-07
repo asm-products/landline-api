@@ -43,12 +43,14 @@ func main() {
 
 	// authenticated routes
 	a := router.Group("/")
+	a.Use(cors.Middleware(co))
 	a.Use(handlers.Auth(os.Getenv("SECRET")))
 	a.GET("/unread", handlers.RoomsUnread)
 	a.POST("/upload", handlers.SignUpload)
 
 	a.GET("/users", handlers.UsersIndex)
 	a.GET("/users/find", handlers.UsersFindOne)
+	a.GET("/users/search", handlers.UsersSearch)
 
 	a.GET("/rooms", handlers.RoomsIndex)
 	a.GET("/rooms/:room", handlers.RoomsShow)

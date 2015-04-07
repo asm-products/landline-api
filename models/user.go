@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"gopkg.in/gorp.v1"
@@ -73,6 +74,20 @@ func FindRecentlyOnlineUsers(teamId string) ([]User, error) {
 		`SELECT * FROM users WHERE team_id = $1
 		and last_online_at >= now() - '2 hour'::INTERVAL`,
 		teamId,
+	)
+
+	return users, err
+}
+
+func SearchUsersByUsernameLike(partialUsername, teamId string) ([]User, error) {
+	var users []User
+
+	_, err := Db.Select(
+		&users,
+		`SELECT * FROM users WHERE team_id = $1
+		AND username ILIKE $2`,
+		teamId,
+		fmt.Sprintf("%%%s%%", partialUsername),
 	)
 
 	return users, err
