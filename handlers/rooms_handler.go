@@ -43,6 +43,20 @@ func RoomsIndex(c *gin.Context) {
 	})
 }
 
+// RoomsTeamIndex simply fetches all of the rooms that have
+// been created for the given team.
+func RoomsTeamIndex(c *gin.Context) {
+	teamID := models.FindTeamBySlug(c.Params.ByName("slug")).Id
+	rooms, err := models.FindRooms(teamID)
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	c.JSON(200, gin.H{
+		"rooms": rooms,
+	})
+}
+
 func RoomsCreate(c *gin.Context) {
 	teamID := models.FindTeamBySlug(c.Params.ByName("slug")).Id
 	var json RoomJSON
@@ -59,7 +73,7 @@ func RoomsCreate(c *gin.Context) {
 		c.Fail(500, err)
 	}
 
-	c.JSON(200, gin.H{"room": room})
+	c.JSON(201, gin.H{"room": room})
 }
 
 func RoomsDelete(c *gin.Context) {

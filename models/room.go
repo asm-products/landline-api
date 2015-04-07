@@ -85,6 +85,25 @@ func Subscribers(roomId string) (*[]string, error) {
 	return &subscribers, err
 }
 
+func SubscribersWithoutUser(roomId, userId string) (*[]string, error) {
+	var subscribers []string
+
+	_, err := Db.Select(
+		&subscribers,
+		`select user_id from room_memberships
+		where room_id = $1
+		and user_id != $2`,
+		roomId,
+		userId,
+	)
+
+	if err == sql.ErrNoRows {
+		return &subscribers, nil
+	}
+
+	return &subscribers, err
+}
+
 func UnreadRooms(userId string) (interface{}, error) {
 	req, err := http.NewRequest(
 		"GET",

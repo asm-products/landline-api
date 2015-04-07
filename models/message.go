@@ -98,7 +98,7 @@ func CreateMessage(fields *Message) error {
 	}
 
 	// ignore Readraptor errors
-	_ = registerUnread(fields.RoomId)
+	_ = registerUnread(fields.RoomId, fields.UserId)
 
 	return nil
 }
@@ -142,8 +142,8 @@ func addHTMLBody(roomId string, messages []MessageWithUser) []MessageWithUser {
 	return messages
 }
 
-func buildReadraptorRequestBody(roomId string) (*bytes.Reader, error) {
-	subscribers, err := Subscribers(roomId)
+func buildReadraptorRequestBody(roomId, userId string) (*bytes.Reader, error) {
+	subscribers, err := SubscribersWithoutUser(roomId, userId)
 
 	if err != nil {
 		return nil, err
@@ -163,8 +163,8 @@ func buildReadraptorRequestBody(roomId string) (*bytes.Reader, error) {
 	return bytes.NewReader(body), nil
 }
 
-func registerUnread(roomId string) error {
-	body, err := buildReadraptorRequestBody(roomId)
+func registerUnread(roomId, userId string) error {
+	body, err := buildReadraptorRequestBody(roomId, userId)
 
 	if err != nil {
 		return err

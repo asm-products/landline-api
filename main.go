@@ -37,6 +37,7 @@ func main() {
 	t.GET("/", handlers.TeamsShow)
 	t.PUT("/", handlers.TeamsUpdate)
 	t.POST("/rooms", handlers.RoomsCreate)
+	t.GET("/rooms", handlers.RoomsTeamIndex)
 	t.PUT("/rooms/:room", handlers.RoomsUpdate)
 	t.DELETE("/rooms/:room", handlers.RoomsDelete)
 

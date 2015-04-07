@@ -11,9 +11,9 @@ const (
 )
 
 type Nonce struct {
-	Id        string    `db:"id" 									json:"-"`
-	ExpiresAt time.Time `db:"expires_at" 					json:"expires_at"`
-	Nonce     string    `db:"nonce" 					    json:"nonce"`
+	Id        string    `db:"id" json:"-"`
+	ExpiresAt time.Time `db:"expires_at" json:"expires_at"`
+	Nonce     string    `db:"nonce" json:"nonce"`
 }
 
 func CreateNonce() (*Nonce, error) {
