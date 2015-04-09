@@ -40,6 +40,7 @@ func main() {
 	t.GET("/rooms", handlers.RoomsTeamIndex)
 	t.PUT("/rooms/:room", handlers.RoomsUpdate)
 	t.DELETE("/rooms/:room", handlers.RoomsDelete)
+	t.POST("/rooms/:room/messages", handlers.MessagesBridgeCreate)
 
 	// authenticated routes
 	a := router.Group("/")

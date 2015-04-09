@@ -94,3 +94,14 @@ func TeamsUpdate(c *gin.Context) {
 
 	c.JSON(200, team)
 }
+
+// GetTeamFromContext fetches the user that was set in the *gin.Context
+// during authorization
+func GetTeamFromContext(c *gin.Context) (*models.Team, error) {
+	result, err := c.Get("team")
+	if err != nil {
+		panic(err)
+	}
+	team := result.(*models.Team)
+	return team, nil
+}

@@ -8,6 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type BridgeMessageJSON struct {
+	Body   string `json:"body" binding:"required"`
+	UserID string `json:"user_id" binding:"required"`
+}
+
 type MessageJSON struct {
 	Body string `json:"body" binding:"required"`
 }
@@ -40,6 +45,32 @@ func MessagesIndex(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"messages": messages})
+}
+
+func MessagesBridgeCreate(c *gin.Context) {
+	var json BridgeMessageJSON
+	c.Bind(&json)
+
+	team, err := GetTeamFromContext(c)
+	if err != nil {
+		c.Fail(500, err)
+	}
+	user, err := models.FindUserByExternalIDAndTeam(json.UserID, team.Id)
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	m, err := SendMessage(
+		user,
+		c.Params.ByName("room"),
+		json.Body,
+		"true",
+	)
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	c.JSON(200, gin.H{"message": m})
 }
 
 func MessagesCreate(c *gin.Context) {
