@@ -28,7 +28,7 @@ func DeleteRoom(slug, teamId string) error {
 	}
 	t := time.Now()
 	room.DeletedAt = &t
-	_, err = Db.Update(room)
+	_, err = Db.Update(&room)
 	return err
 }
 
