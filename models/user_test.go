@@ -9,6 +9,8 @@ import (
 
 func TestFindOrCreateUserByExternalId(t *testing.T) {
 	user := makeFakeUser()
+	user.Id = "TestFindOrCreateUserByExternalId-1"
+	user.ExternalId = "TestFindOrCreateUserByExternalId-ex1"
 	result, err := FindOrCreateUserByExternalId(user)
 	if err != nil {
 		t.Fatal(err)
@@ -18,7 +20,7 @@ func TestFindOrCreateUserByExternalId(t *testing.T) {
 	}
 
 	user1 := &User{
-		ExternalId: "ex1",
+		ExternalId: user.ExternalId,
 	}
 	result, err = FindOrCreateUserByExternalId(user1)
 	if err != nil {
