@@ -111,15 +111,10 @@ func ParseMessage(message *Message) string {
 	messageCopy := *message
 
 	roomMentions := utils.ParseRoomMentions(messageCopy.Body)
-	urls := utils.ParseURLs(messageCopy.Body)
 	userMentions := utils.ParseUserMentions(messageCopy.Body)
 
 	if len(roomMentions) > 0 {
 		messageCopy.Body = replaceRoomMentionsWithLinks(&messageCopy, roomMentions)
-	}
-
-	if len(urls) > 0 {
-		messageCopy.Body = replaceUrlsWithLinks(&messageCopy, urls)
 	}
 
 	if len(userMentions) > 0 {
