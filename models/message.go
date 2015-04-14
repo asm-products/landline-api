@@ -111,15 +111,10 @@ func ParseMessage(message *Message) string {
 	body := message.Body
 
 	roomMentions := utils.ParseRoomMentions(body)
-	urls := utils.ParseURLs(body)
 	userMentions := utils.ParseUserMentions(body)
 
 	if len(roomMentions) > 0 {
 		body = replaceRoomMentionsWithLinks(message, roomMentions)
-	}
-
-	if len(urls) > 0 {
-		body = replaceUrlsWithLinks(message, urls)
 	}
 
 	if len(userMentions) > 0 {
@@ -198,7 +193,7 @@ func replaceRoomMentionsWithLinks(message *Message, mentions []string) string {
 		}
 
 		link := fmt.Sprintf(
-			`<a href="#/rooms/%v" target="_top" title="%v">#%v</a>`,
+			`<a href="#/rooms/%v" title="%v">#%v</a>`,
 			r.Slug,
 			r.Topic,
 			r.Slug,
@@ -214,7 +209,7 @@ func replaceUrlsWithLinks(message *Message, urls []string) string {
 
 	for i := range urls {
 		link := fmt.Sprintf(
-			`<a href="%v" target="_top">%v</a>`,
+			`<a href="%v">%v</a>`,
 			urls[i],
 			urls[i],
 		)
@@ -236,7 +231,7 @@ func replaceUserMentionsWithLinks(message *Message, mentions []string) string {
 		}
 
 		link := fmt.Sprintf(
-			`<a href="%v" target="_top">@%v</a>`,
+			`<a href="%v">@%v</a>`,
 			u.ProfileUrl,
 			u.Username,
 		)

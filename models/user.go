@@ -84,7 +84,7 @@ func FindRecentlyOnlineUsers(teamId string) ([]User, error) {
 	_, err := Db.Select(
 		&users,
 		`SELECT * FROM users WHERE team_id = $1
-		and last_online_at >= now() - '2 hour'::INTERVAL`,
+		and last_online_at >= now() - '1 day'::INTERVAL`,
 		teamId,
 	)
 
