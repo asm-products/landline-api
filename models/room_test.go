@@ -2,8 +2,12 @@ package models
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
+	"bytes"
 )
 
 func TestDeleteRoom(t *testing.T) {
@@ -130,6 +134,62 @@ func TestUpdateRoom(t *testing.T) {
 	result.setTime(room.CreatedAt)
 	if *room != *result {
 		t.Errorf("TestUpdateRoom: got (%v), want (%v)", result, room)
+	}
+}
+
+func TestSubscribers(t *testing.T) {
+	membership := makeFakeRoomMembership()
+	membership.Id = "TestSubscribers-1"
+	membership.RoomId = "TestSubscribers-room1"
+	membership.UserId = "TestSubscribers-user1"
+	_ = insertFakeRoomMembership(membership, t)
+
+	result, err := Subscribers(membership.RoomId)
+	if err != nil {
+		t.Fatal("TestSubscribers error:", err)
+	}
+	if len(*result) != 1 {
+		t.Fatalf("TestSubscribers got %d results, want %d results", len(*result), 1)
+	}
+	if (*result)[0] != membership.UserId {
+		t.Errorf("TestSubscribers got %s, want %s", (*result)[0], membership.UserId)
+	}
+}
+
+func TestUnreadRooms(t *testing.T) {
+	userId := "TestUnreadRooms-user"
+	expected := "TestUnreadRooms-response"
+	response := fmt.Sprintf(`{"response":"%s"}`, expected)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		if r.Method != "GET" {
+			t.Errorf("TestUnreadRooms: got (%s), want (%s)", r.Method, "GET")
+		}
+		if r.RequestURI != "/readers/" + userId {
+			t.Errorf("TestUnreadRooms: got (%s), want (%s)", r.RequestURI, "/articles")
+		}
+		if r.Header.Get("Authorization") != "Basic eHl6Og==" {
+			t.Errorf("TestUnreadRooms: got (%s), want (%s)", r.Header.Get("Authorization"), "Basic eHl6Og==")
+		}
+		w.Write(bytes.NewBufferString(response).Bytes())
+	}))
+	defer server.Close()
+	err := os.Setenv("RR_URL", server.URL)
+	if err != nil {
+		t.Fatal("TestUnreadRooms error:", err)
+	}
+	err = os.Setenv("RR_PRIVATE_KEY", "xyz")
+	if err != nil {
+		t.Fatal("TestUnreadRooms error:", err)
+	}
+
+	resp, err := UnreadRooms(userId)
+	if err != nil {
+		t.Fatal("TestUnreadRooms error:", err)
+	}
+	result := resp.(map[string]interface{})
+	if result["response"] != expected {
+		t.Errorf("TestUnreadRooms got %s, want %s", result["response"], expected)
 	}
 }
 

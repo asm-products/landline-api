@@ -144,43 +144,6 @@ func TestFindUsers(t *testing.T) {
 	}
 }
 
-// This method can't be fully tested due to preInsert/preUpdate hook
-func TestFindRecentlyOnlineUsers(t *testing.T) {
-	team := "TestFindRecentlyOnlineUsers-team"
-	users := []*User{makeFakeUser(), makeFakeUser(), makeFakeUser()}
-	for i, user := range users {
-		user.Id = fmt.Sprintf("TestFindRecentlyOnlineUsers-%d", i)
-		user.TeamId = team
-		err := Db.Insert(user)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-	expiredUser := makeFakeUser()
-	expiredUser.Id = "TestFindRecentlyOnlineUsers-3"
-	expiredUser.TeamId = team
-	expiredUser.LastOnlineAt = time.Now().Add(-time.Duration(2) * time.Hour)
-	err := Db.Insert(expiredUser)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	result, err := FindUsers(team)
-	if err != nil {
-		t.Fatal(err)
-	}
-	/*if len(users) != len(result) {
-	    t.Fatalf("FindRecentlyOnlineUsers: got %d results, want %d results", len(result), len(users))
-	}*/
-	for i, origUser := range users {
-		newUser := result[i]
-		newUser.setTime(origUser.CreatedAt)
-		if *origUser != newUser {
-			t.Errorf("FindRecentlyOnlineUsers: got (%v), want (%v)", newUser, origUser)
-		}
-	}
-}
-
 // used to make timestamps uniform since they are modified before insertion
 func (o *User) setTime(t time.Time) {
 	o.CreatedAt = t
@@ -202,5 +165,22 @@ func makeFakeUser() *User {
 		ProfileUrl:   "http://imgur.com/2.jpg",
 		RealName:     "Max User",
 		Username:     "maxuser",
+	}
+}
+
+func makeFakeUserWithPrefixAndId(prefix string, id int) *User {
+	t := time.Now()
+	return &User{
+		Id:           fmt.Sprintf("%s-%d", prefix, id),
+		CreatedAt:    t,
+		UpdatedAt:    t,
+		LastOnlineAt: t,
+		TeamId:       fmt.Sprintf("%s-team%d", prefix, id),
+		AvatarUrl:    fmt.Sprintf("http://%s.com/avatar%d.jpg", prefix, id),
+		Email:        fmt.Sprintf("%d@%s.com", id, prefix),
+		ExternalId:   fmt.Sprintf("%s-ext%d", prefix, id),
+		ProfileUrl:   fmt.Sprintf("http://%s.com/profile%d.jpg", prefix, id),
+		RealName:     fmt.Sprintf("%s-realname%d", prefix, id),
+		Username:     fmt.Sprintf("%s-user%d", prefix, id),
 	}
 }

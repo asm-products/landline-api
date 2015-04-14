@@ -3,6 +3,7 @@ package models
 import (
 	"testing"
 	"time"
+	"bytes"
 )
 
 func TestFindTeamById(t *testing.T) {
@@ -76,6 +77,67 @@ func TestUpdateTeam(t *testing.T) {
 	result.setTime(team.CreatedAt)
 	if *team != *result {
 		t.Errorf("TestUpdateTeam: got (%v), want (%v)", result, team)
+	}
+}
+
+func TestPostToTeamWebhook(t *testing.T) {
+	teamId := "TestPostToTeamWebhook-team1"
+	room := makeFakeRoom()
+	room.Id = "TestPostToTeamWebhook-1"
+	room.TeamId = teamId
+	room.Slug = "TestPostToTeamWebhook-slug1"
+	_ = insertFakeRoom(room, t)
+	user := makeFakeUser()
+	user.Id = "TestPostToTeamWebhook-1"
+	user.Username = "TestPostToTeamWebhook-user1"
+	user.TeamId = teamId
+	user.ExternalId = "TestPostToTeamWebhook-ext1"
+	err := Db.Insert(user)
+	if err != nil {
+		t.Fatal("TestPostToTeamWebhook error:", err)
+	}
+	team := makeFakeTeam()
+	team.Id = teamId
+	_ = insertFakeTeam(team, t)
+	now := time.Now()
+	m := &Message{
+		RoomId:    room.Id,
+		UserId:    user.Id,
+		Body:      "TestPostToTeamWebhook-body",
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	err = PostToTeamWebhook(room.Id, m)
+	if err != nil {
+		t.Fatal("TestPostToTeamWebhook error:", err)
+	}
+}
+
+func TestAlertTeamOfMentions(t *testing.T) {
+	teamId := "TestAlertTeamOfMentions-team1"
+	room := makeFakeRoom()
+	room.Id = "TestAlertTeamOfMentions-1"
+	room.TeamId = teamId
+	room.Slug = "TestAlertTeamOfMentions-slug1"
+	_ = insertFakeRoom(room, t)
+	team := makeFakeTeam()
+	team.Id = teamId
+	webhook := "TestAlertTeamOfMentions-url"
+	team.WebhookURL = &webhook
+	_ = insertFakeTeam(team, t)
+	mentions := []string{}
+	err := AlertTeamOfMentions(room.Id, "TestAlertTeamOfMentions-body", mentions)
+	if err != nil {
+		t.Fatal("TestAlertTeamOfMentions error:", err)
+	}
+}
+
+func TestShaString(t *testing.T) {
+	// http://www.xorbin.com/tools/sha256-hash-calculator
+	expected := "810ff2fb242a5dee4220f2cb0e6a519891fb67f2f828a6cab4ef8894633b1f50"
+	result := ShaString(bytes.NewBufferString("testdata").Bytes())
+	if expected != result {
+		t.Errorf("TestShaString: got (%v), want (%v)", result, expected)
 	}
 }
 

@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestReplaceUrlsWithLinks(t *testing.T) {
@@ -170,4 +171,80 @@ func TestParseMessage(t *testing.T) {
 	if result != expectedBody {
 		t.Errorf("TestParseMessage: got (%s), want (%s)", result, expectedBody)
 	}
+}
+
+func TestCreateMessage(t *testing.T) {
+	now := time.Now()
+	m := &Message{
+		RoomId:    "TestCreateMessage-room1",
+		UserId:    "TestCreateMessage-user1",
+		Body:      "TestCreateMessage-body",
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	err := CreateMessage(m)
+	if err != nil {
+		t.Fatal("TestCreateMessage error:", err)
+	}
+	result := Message{}
+	err = Db.SelectOne(&result, "SELECT * FROM messages WHERE messages.room_id = $1", m.RoomId)
+	if err != nil {
+		t.Fatal("TestCreateMessage error:", err)
+	}
+	result.setTime(m.CreatedAt)
+	if result != *m {
+		t.Errorf("TestCreateMessage: got (%+v), want (%+v)", result, *m)
+	}
+}
+
+func TestFindMessages(t *testing.T) {
+	err := Db.DropTableIfExists(Message{})
+	if err != nil {
+		t.Fatal("TestFindMessages error:", err)
+	}
+	err = Db.CreateTablesIfNotExists()
+	if err != nil {
+		t.Fatal("TestFindMessages error:", err)
+	}
+	now := time.Now()
+	m := &Message{
+		RoomId:    "TestFindMessages-room1",
+		UserId:    "TestFindMessages-user1",
+		Body:      "TestFindMessages-body",
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	err = CreateMessage(m)
+	if err != nil {
+		t.Fatal("TestFindMessages error:", err)
+	}
+	user := makeFakeUser()
+	user.Id = m.UserId
+	user.Username = "TestFindMessages-userId1"
+	user.AvatarUrl = "TestFindMessages-avatarUrl1"
+	user.ProfileUrl = "TestFindMessages-profileUrl1"
+	err = Db.Insert(user)
+	if err != nil {
+		t.Fatal("TestFindMessages error:", err)
+	}
+
+	msgs, err := FindMessages(m.RoomId)
+	if err != nil {
+		t.Fatal("TestFindMessages error:", err)
+	}
+	if len(msgs) != 1 {
+		t.Fatalf("TestFindMessages got %d results, want %d results", len(msgs), 1)
+	}
+	result := msgs[0]
+	expected := NewMessageWithUser(m, user)
+	result.CreatedAt = expected.CreatedAt
+	result.LastOnlineAt = expected.LastOnlineAt
+	if result != *expected {
+		t.Errorf("TestFindMessages: got (%+v), want (%+v)", result, *expected)
+	}
+}
+
+func (o *Message) setTime(t time.Time) {
+	o.CreatedAt = t
+	o.UpdatedAt = t
 }
