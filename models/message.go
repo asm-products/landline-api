@@ -108,25 +108,25 @@ func CreateMessage(fields *Message) error {
 // URLs, and then passing the body through Blackfriday for additional parsing
 // and finally Bluemonday for sanitization.
 func ParseMessage(message *Message) string {
-	body := message.Body
+	messageCopy := *message
 
-	roomMentions := utils.ParseRoomMentions(body)
-	urls := utils.ParseURLs(body)
-	userMentions := utils.ParseUserMentions(body)
+	roomMentions := utils.ParseRoomMentions(messageCopy.Body)
+	urls := utils.ParseURLs(messageCopy.Body)
+	userMentions := utils.ParseUserMentions(messageCopy.Body)
 
 	if len(roomMentions) > 0 {
-		body = replaceRoomMentionsWithLinks(message, roomMentions)
+		messageCopy.Body = replaceRoomMentionsWithLinks(&messageCopy, roomMentions)
 	}
 
 	if len(urls) > 0 {
-		body = replaceUrlsWithLinks(message, urls)
+		messageCopy.Body = replaceUrlsWithLinks(&messageCopy, urls)
 	}
 
 	if len(userMentions) > 0 {
-		body = replaceUserMentionsWithLinks(message, userMentions)
+		messageCopy.Body = replaceUserMentionsWithLinks(&messageCopy, userMentions)
 	}
 
-	unsafe := blackfriday.MarkdownCommon([]byte(body))
+	unsafe := blackfriday.MarkdownCommon([]byte(messageCopy.Body))
 	safe := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
 
 	return string(safe)
