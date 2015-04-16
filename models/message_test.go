@@ -16,8 +16,8 @@ func TestReplaceUrlsWithLinks(t *testing.T) {
     and also https://duckduckgo.com!
     `
 	expectedBody := `
-    Check out <a href="https://www.yahoo.com" target="_top">https://www.yahoo.com</a> for more info,
-    and also <a href="https://duckduckgo.com" target="_top">https://duckduckgo.com</a>!
+    Check out <a href="https://www.yahoo.com">https://www.yahoo.com</a> for more info,
+    and also <a href="https://duckduckgo.com">https://duckduckgo.com</a>!
     `
 	urls := []string{"https://www.yahoo.com", "https://duckduckgo.com"}
 	message := &Message{Body: messageBody}
@@ -43,7 +43,7 @@ func TestReplaceUserMentionsWithLinks(t *testing.T) {
 
 	messageBody := fmt.Sprintf("Have you seen @%s around?", user.Username)
 	expectedBody := fmt.Sprintf(
-		`Have you seen <a href="%s" target="_top">@%s</a> around?`,
+		`Have you seen <a href="%s">@%s</a> around?`,
 		user.ProfileUrl,
 		user.Username)
 
@@ -71,7 +71,7 @@ func TestReplaceRoomMentionsWithLinks(t *testing.T) {
 		Body:   fmt.Sprintf("There's a lot going on at #%s", room.Slug),
 	}
 	expectedBody := fmt.Sprintf(
-		`There's a lot going on at <a href="#/rooms/%s" target="_top" title="%s">#%s</a>`,
+		`There's a lot going on at <a href="#/rooms/%s" title="%s">#%s</a>`,
 		room.Slug,
 		room.Topic,
 		room.Slug)
