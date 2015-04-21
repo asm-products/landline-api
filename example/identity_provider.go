@@ -12,10 +12,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/tommy351/gin-cors"
+	"fmt"
 )
 
 func main() {
 	secret := os.Args[1]
+	redirect := "localhost:3000"
+	if len(os.Args) >= 3 {
+		redirect = os.Args[2]
+	}
 
 	r := gin.Default()
 	r.Use(cors.Middleware(cors.Options{
@@ -41,7 +46,8 @@ func main() {
 
 		raw := v.Encode()
 		payload := base64.StdEncoding.EncodeToString([]byte(raw))
-		url := "http://localhost:8888/sessions/sso?payload=" + url.QueryEscape(payload) + "&sig=" + Sign([]byte(secret), []byte(payload))
+		url := fmt.Sprintf("http://%s/sessions/sso?payload=%s&sig=%s",
+			redirect, url.QueryEscape(payload), Sign([]byte(secret), []byte(payload)))
 
 		c.Redirect(302, url)
 	})
