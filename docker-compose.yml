@@ -1,9 +1,12 @@
 web:
   build: .
+  volumes:
+   - .:/go/src/github.com/asm-products/landline-api
   links:
    - db
   ports:
    - "3000:3000"
+   - "8989:8989"
   environment:
     - DATABASE_URL=postgres://postgres@db/postgres?sslmode=disable
 
