@@ -111,14 +111,15 @@ func ParseMessage(message *Message) string {
 	messageCopy := *message
 
 	roomMentions := utils.ParseRoomMentions(messageCopy.Body)
+	urlMentions := utils.ParseURLs(messageCopy.Body)
 	userMentions := utils.ParseUserMentions(messageCopy.Body)
 
 	if len(roomMentions) > 0 {
-		messageCopy.Body = replaceRoomMentionsWithLinks(&messageCopy, roomMentions)
+		messageCopy.Body = replaceRoomMentionsWithLinks(&messageCopy, roomMentions, urlMentions)
 	}
 
 	if len(userMentions) > 0 {
-		messageCopy.Body = replaceUserMentionsWithLinks(&messageCopy, userMentions)
+		messageCopy.Body = replaceUserMentionsWithLinks(&messageCopy, userMentions, urlMentions)
 	}
 
 	unsafe := blackfriday.MarkdownCommon([]byte(messageCopy.Body))
@@ -182,7 +183,27 @@ func registerUnread(roomId, userId string) error {
 	return err
 }
 
-func replaceRoomMentionsWithLinks(message *Message, mentions []string) string {
+type replacer func(body string) string
+
+func replaceStringsOutsideOfUrls(body string, search string, urls []string, stringReplacer replacer) string {
+	urlReplaced := false
+	for _, url := range urls {
+		if strings.Contains(url, search) {
+			urlReplaced = true
+			elems := strings.Split(body, url)
+			for j := range elems {
+				elems[j] = stringReplacer(elems[j])
+			}
+			body = strings.Join(elems, url)
+		}
+	}
+	if !urlReplaced {
+		body = stringReplacer(body)
+	}
+	return body
+}
+
+func replaceRoomMentionsWithLinks(message *Message, mentions []string, urls []string) string {
 	room := FindRoomById(message.RoomId)
 	body := message.Body
 	for i := range mentions {
@@ -198,7 +219,9 @@ func replaceRoomMentionsWithLinks(message *Message, mentions []string) string {
 			r.Topic,
 			r.Slug,
 		)
-		body = strings.Replace(body, `#`+mentions[i], link, 1)
+		body = replaceStringsOutsideOfUrls(body, mentions[i], urls, func(body string) string {
+			return strings.Replace(body, `#`+mentions[i], link, 1)
+		})
 	}
 
 	return body
@@ -220,7 +243,7 @@ func replaceUrlsWithLinks(message *Message, urls []string) string {
 	return body
 }
 
-func replaceUserMentionsWithLinks(message *Message, mentions []string) string {
+func replaceUserMentionsWithLinks(message *Message, mentions []string, urls []string) string {
 	room := FindRoomById(message.RoomId)
 	body := message.Body
 	for i := range mentions {
@@ -236,7 +259,9 @@ func replaceUserMentionsWithLinks(message *Message, mentions []string) string {
 			u.Username,
 		)
 
-		body = strings.Replace(body, `@`+mentions[i], link, 1)
+		body = replaceStringsOutsideOfUrls(body, mentions[i], urls, func(body string) string {
+			return strings.Replace(body, `@`+mentions[i], link, 1)
+		})
 	}
 
 	return body

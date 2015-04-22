@@ -41,9 +41,11 @@ func TestReplaceUserMentionsWithLinks(t *testing.T) {
 		t.Fatal("TestReplaceUserMentionsWithLinks error:", err)
 	}
 
-	messageBody := fmt.Sprintf("Have you seen @%s around?", user.Username)
+	site := fmt.Sprintf("http://www.site.com/@%s/post", user.Username)
+	messageBody := fmt.Sprintf("Have you seen %s @%s around?", site, user.Username)
 	expectedBody := fmt.Sprintf(
-		`Have you seen <a href="%s">@%s</a> around?`,
+		`Have you seen %s <a href="%s">@%s</a> around?`,
+		site,
 		user.ProfileUrl,
 		user.Username)
 
@@ -52,7 +54,7 @@ func TestReplaceUserMentionsWithLinks(t *testing.T) {
 		Body:   messageBody,
 	}
 
-	result := replaceUserMentionsWithLinks(message, []string{user.Username})
+	result := replaceUserMentionsWithLinks(message, []string{user.Username}, []string{site})
 	if result != expectedBody {
 		t.Errorf("TestReplaceUserMentionsWithLinks: got (%s), want (%s)", result, expectedBody)
 	}
@@ -66,16 +68,18 @@ func TestReplaceRoomMentionsWithLinks(t *testing.T) {
 	room.Topic = "TestReplaceRoomMentionsWithLinks-topic"
 	_ = insertFakeRoom(room, t)
 
+	site := fmt.Sprintf("http://www.site.com/#%s/post", room.Slug)
 	message := &Message{
 		RoomId: room.Id,
-		Body:   fmt.Sprintf("There's a lot going on at #%s", room.Slug),
+		Body:   fmt.Sprintf("There's a lot going on at %s #%s", site, room.Slug),
 	}
 	expectedBody := fmt.Sprintf(
-		`There's a lot going on at <a href="#/rooms/%s" title="%s">#%s</a>`,
+		`There's a lot going on at %s <a href="#/rooms/%s" title="%s">#%s</a>`,
+		site,
 		room.Slug,
 		room.Topic,
 		room.Slug)
-	result := replaceRoomMentionsWithLinks(message, []string{room.Slug})
+	result := replaceRoomMentionsWithLinks(message, []string{room.Slug}, []string{site})
 	if result != expectedBody {
 		t.Errorf("TestReplaceRoomMentionsWithLinks: got (%s), want (%s)", result, expectedBody)
 	}
