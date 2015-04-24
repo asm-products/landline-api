@@ -62,6 +62,9 @@ func main() {
 	a.PUT("/rooms/:room/memberships", handlers.RoomMembershipsCreate)
 	a.DELETE("/rooms/:room/memberships", handlers.RoomMembershipsDelete)
 
+	a.PUT("/messages/:message/hearts", handlers.MessagesHeart)
+	a.DELETE("/messages/:message/hearts", handlers.MessagesUnheart)
+
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "3000"

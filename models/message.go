@@ -50,6 +50,33 @@ func NewMessageWithUser(message *Message, user *User) *MessageWithUser {
 	}
 }
 
+type MessageHeart struct {
+	UserId      string `db:"user_id" json:"user_id"`
+	MessageId   string `db:"message_id" json:"message_id"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+}
+
+func CreateMessageHeart(userId, messageId string) (*MessageHeart, error) {
+	h := &MessageHeart{UserId: userId, MessageId: messageId}
+
+	err := Db.Insert(h)
+	if err != nil {
+		return nil, err
+	}
+
+	return h, nil
+}
+
+func RemoveMessageHeart(userId, messageId string) error {
+	_, err := Db.Delete(&MessageHeart{UserId: userId, MessageId: messageId})
+	return err
+}
+
+func (m *MessageHeart) PreInsert(s gorp.SqlExecutor) error {
+	m.CreatedAt = time.Now()
+	return nil
+}
+
 type UnreadAlert struct {
 	Key        string    `json:"key"`
 	Recipients *[]string `json:"recipients"`

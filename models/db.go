@@ -29,6 +29,7 @@ func NewDbContext(url string) *gorp.DbMap {
 	dbmap.AddTableWithName(Team{}, "teams").SetKeys(true, "Id")
 	dbmap.AddTableWithName(User{}, "users").SetKeys(true, "Id")
 	dbmap.AddTableWithName(RoomMembership{}, "room_memberships").SetKeys(true, "Id")
+	dbmap.AddTableWithName(MessageHeart{}, "message_hearts").SetKeys(false, "UserId", "MessageId")
 
 	if os.Getenv("DEBUG") != "" {
 		dbmap.TraceOn("[gorp]", log.New(os.Stdout, "[DATABASE] ", log.Lmicroseconds))

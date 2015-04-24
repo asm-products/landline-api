@@ -122,3 +122,31 @@ func SendMessage(user *models.User, roomSlug, body, bridge string) (*models.Mess
 func sanitizeBody(body string) string {
 	return html.EscapeString(body)
 }
+
+func MessagesHeart(c *gin.Context) {
+	user, err := GetUserFromContext(c)
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	h, err := models.CreateMessageHeart(user.Id, c.Params.ByName("message"))
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	c.JSON(200, gin.H{"heart": h})
+}
+
+func MessagesUnheart(c *gin.Context) {
+	user, err := GetUserFromContext(c)
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	err = models.RemoveMessageHeart(user.Id, c.Params.ByName("message"))
+	if err != nil {
+		c.Fail(500, err)
+	}
+
+	c.JSON(200, gin.H{})
+}
