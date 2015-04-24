@@ -9,13 +9,19 @@ This is a product being built by the Assembly community. You can help push this 
 
 ## Development
 
+### With Docker
+
 The easiest way to run the API locally is with [Compose](https://docs.docker.com/compose/). First make sure Docker and Compose are installed. Then run:
 
+    docker-compose up -d
+    # Create postgres databases
     ./dc-setup
-    ./db/dc-migrate
-    ./db/dc-test-data
-    docker-compose run web go run db/test-data.go
-    docker-compose up
+    # Run database migrations
+    docker exec -t landlineapi_web_1 goose up
+    # Insert test data
+    docker exec -t landlineapi_web_1 go run db/test-data.go
+    
+### Without Docker
 
 If you want to run it outside Docker, make sure postgres and go version 1.4 are installed, then run    
 
@@ -26,6 +32,32 @@ If you want to run it outside Docker, make sure postgres and go version 1.4 are 
     ./db/migrate
     forego run go run db/test-data.go
     gin
+    
+### Testing with a client
+
+In order to get the [landline web client](https://github.com/asm-products/landline-web) working with your local instance of the API, you will first need to run the test id provider located at `example/identity_provider.go`. The program takes in two parameters:
+
+1. a secret key shared between the landline API and the id provider
+2. IP address of the server to redirect a client to after authentication (default: `localhost:3000`)
+
+To run it with the default redirect URL:
+
+    go run example/identity_provider.go 41fe7589256fd058b3f56bc71a56ebad3b1d6b86e027a73a02db0e3a0524f9d4
+    
+Next, from the landline-web directory, run:
+
+    cp .env.sample .env
+    npm start
+    
+And open a browser to http://localhost:8080 after webpack is running.
+    
+If using [boot2docker](https://github.com/boot2docker/boot2docker):
+
+    go run example/identity_provider.go 41fe7589256fd058b3f56bc71a56ebad3b1d6b86e027a73a02db0e3a0524f9d4 $(boot2docker ip):3000
+    
+    # in landline-web directory:
+    echo LANDLINE_API_URL=http://$(boot2docker ip):3000 > .env
+    npm start
 
 ### Authentication flow
 

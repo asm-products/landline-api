@@ -1,5 +1,7 @@
 web:
   build: .
+  volumes:
+   - .:/go/src/github.com/asm-products/landline-api
   links:
    - db
   ports:
